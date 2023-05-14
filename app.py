@@ -5,7 +5,6 @@ from flask_restx import Resource, Api
 from werkzeug.datastructures import FileStorage
 
 app = Flask(__name__)
-
 api = Api(app, title='API Mock integração Jacad', version='1.0', description='Api de integração com python flask', prefix='/api')
 
 upload_parser = api.parser()
