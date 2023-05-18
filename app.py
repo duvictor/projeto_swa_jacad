@@ -55,18 +55,20 @@ class HelloWorld(Resource):
 class Upload(Resource):
     def post(self):
         '''
-        responavel por receber um arquivo no formato jpg ou pdf e responder o recebimento do arquivo
+        responsavel por receber um arquivo no formato jpg ou pdf, o tipo do documento: cpf, rg, cnh. E responder o recebimento do arquivo
+        simulando o comportamento da IA
         :return:
         '''
         try:
             args = upload_parser.parse_args()
             uploaded_file = args['file']  # This is FileStorage instance
+            type_file = args['tipo']
         except:
             return {'erro': 'Arquivo não recebido'}, 400
 
         if(allowed_file(uploaded_file.filename)):
             token = '1234567'
-            return {'sucesso': 'Arquivo recebido com sucesso!', 'token': token}, 201
+            return {'sucesso': 'Arquivo recebido com sucesso!', 'token': token, "tipo": type_file}, 201
         
         return {'erro': 'Arquivo não permitido'}, 400
 
