@@ -56,13 +56,26 @@ class Upload(Resource):
     def post(self):
         '''
         responsavel por receber um arquivo no formato jpg ou pdf, o tipo do documento: cpf, rg, cnh. E responder o recebimento do arquivo
-        simulando o comportamento da IA
+        simulando o comportamento da IA.
+        Token de teste: 1234567
+        
+        autenticacao basic, usando o beaurus
+        manda no header
+
+
         :return:
         '''
         try:
             args = upload_parser.parse_args()
             uploaded_file = args['file']  # This is FileStorage instance
             type_file = args['tipo']
+            objeto_json = args['objeto']
+
+
+            if type_file == 'RG':
+                chmar_rede_rg = 'chamar executavel da rede de rg'
+            if type_file == 'CNH':
+                chmar_rede_cnh = 'chamar executavel da rede de cnh'
         except:
             return {'erro': 'Arquivo não recebido'}, 400
 
