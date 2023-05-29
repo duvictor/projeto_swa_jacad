@@ -4,6 +4,9 @@ from flask import Flask, request
 from flask_restx import Resource, Api
 from werkzeug.datastructures import FileStorage
 
+from utils import process_args, check_file
+from predict import make_prediction
+
 app = Flask(__name__)
 
 api = Api(app, 
@@ -20,13 +23,6 @@ upload_parser.add_argument('file',
     required=True, 
     help='Arquivo que será predito pela inteligência artificial'
 )
-
-ALLOWED_EXTENSIONS = {'jpeg', 'pdf'}
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @api.route("/")
 class Home(Resource):
@@ -62,28 +58,31 @@ class Upload(Resource):
         autenticacao basic, usando o beaurus
         manda no header
 
-
         :return:
         '''
+
+        output_message = list()
         try:
-            args = upload_parser.parse_args()
+            #args = upload_parser.parse_args()
+            args = self.api.payload
             uploaded_file = args['file']  # This is FileStorage instance
             type_file = args['tipo']
-            objeto_json = args['objeto']
 
+            output_message.append(check_file(uploaded_file, type_file))
 
-            if type_file == 'RG':
-                chmar_rede_rg = 'chamar executavel da rede de rg'
-            if type_file == 'CNH':
-                chmar_rede_cnh = 'chamar executavel da rede de cnh'
         except:
-            return {'erro': 'Arquivo não recebido'}, 400
+            output_message.append({'erro': 'Arquivo não recebido'}, 400)
+            return output_message
 
-        if(allowed_file(uploaded_file.filename)):
-            token = '1234567'
-            return {'sucesso': 'Arquivo recebido com sucesso!', 'token': token, "tipo": type_file}, 201
-        
-        return {'erro': 'Arquivo não permitido'}, 400
+
+        message = process_args(args)
+        output_message.append(make_prediction(message))
+
+        for om in output_message:
+            print(om)
+        return output_message
+
+
 
 
 if __name__ == '__main__':

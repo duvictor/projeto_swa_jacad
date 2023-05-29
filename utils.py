@@ -5,6 +5,42 @@ responsavel por manter padrões do sistema
 '''
 
 
+def process_args(args):
+    uploaded_file = args['file'][0]  # This is FileStorage instance
+    type_file     = args['tipo'][0]
+    objeto_json   = args['objeto'][0]
+
+    if type_file == 'RG':
+        message = {'DOC_TYPE':   'RG',
+                   'FILE_PATH':  uploaded_file,
+                   'DOC_NUMBER': {'RG_NOME': objeto_json['RG_NOME'],
+                                  'RG_NUMERO': objeto_json['RG_NUMERO'],
+                                  'RG_CPF': objeto_json['RG_CPF'],
+                                 }
+                   }
+    elif type_file == 'CNH':
+        message = {'DOC_TYPE': 'CNH',
+                   'FILE_PATH': uploaded_file,
+                   'DOC_NUMBER': {'CNH_NOME': objeto_json['CNH_NOME'],
+                                  'CNH_NUMERO': objeto_json['CNH_NUMERO'],
+                                  'RG_NUMERO': objeto_json['RG_NUMERO'],
+                                  'CPF_NUMERO': objeto_json['CPF_NUMERO'],
+                                  }
+                   }
+    return message
+
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'jpeg', 'pdf'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def check_file(uploaded_file, type_file):
+    if(allowed_file(uploaded_file)):
+        token = '1234567'
+        return {'sucesso': 'Arquivo recebido com sucesso!', 'token': token, "tipo": type_file}, 201
+
+
 tipos_documentos ={'RG', 'CNH,', 'PASSAPORTE', 'RNE', 'DIPLOMA', 'CERTIDAO'}
 
 
@@ -36,6 +72,8 @@ objeto_recebido = { 'RG_FRENTE': True,
                     }
 
 
+
+
 objeto_retorno = {
                     'VALIDAR_NOME': True,
                    'VALIDAR_FRENTE_VERSO': True,
@@ -64,5 +102,4 @@ objeto_retorno = {
                     'VALIDAR_CERTIDAO_CORROMPIDO' :  True,
                     # Exclusivamente para a certidão/declaração de conclusão
                     'VALIDAR_CERTIDAO_EMISSAO' :  True
-
     }
