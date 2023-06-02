@@ -11,13 +11,7 @@ from predict import make_prediction
 app = Flask(__name__)
 
 
-
-api = Api(app, 
-    title='API Mock integração Jacad', 
-    version='1.0', 
-    description='Api de integração com python flask', 
-    prefix='/api'
-)
+api = Api(app, title='API Mock integração Jacad', version='1.0', description='Api de integração com python flask', prefix='/api')
 
 
 # https://flask-restx.readthedocs.io/en/latest/parsing.html
