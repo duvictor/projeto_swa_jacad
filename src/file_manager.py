@@ -43,6 +43,6 @@ def check_file_integrity(file_path):
 
 def read_image(message):
 
-    image = preprocess_image(np.array(Image.open(message['FILE_PATH'])).copy())
+    image = preprocess_image(np.array(message['IMAGE']).copy())
     image, scale = resize_image(image)
     return np.expand_dims(image, axis=0), scale

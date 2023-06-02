@@ -57,11 +57,13 @@ def make_prediction(message):
     }
     """
 
-    if check_file_integrity(message['FILE_PATH']):
-        # Return message of not valid file
-        print('Invalid File')
-        errors =  process_output(invalid_file=True)
+    # if check_file_integrity(message['FILE_PATH']):
+    #     # Return message of not valid file
+    #     print('Invalid File')
+    #     errors =  process_output(invalid_file=True)
 
+    if False:
+        a = 45
     else:
 
         model = load_model(message)

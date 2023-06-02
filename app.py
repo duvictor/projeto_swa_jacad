@@ -1,13 +1,16 @@
 import datetime
-
+import json
+import cv2
+import numpy as np
 from flask import Flask, request
-from flask_restx import Resource, Api
+from flask_restx import Resource, Api, reqparse
 from werkzeug.datastructures import FileStorage
-
 from utils import process_args, check_file
 from predict import make_prediction
 
 app = Flask(__name__)
+
+
 
 api = Api(app, 
     title='API Mock integração Jacad', 
@@ -16,13 +19,23 @@ api = Api(app,
     prefix='/api'
 )
 
+
+# https://flask-restx.readthedocs.io/en/latest/parsing.html
+# https://flask.palletsprojects.com/en/2.3.x/patterns/fileuploads/
+# documentação indicando como fazer
 upload_parser = api.parser()
-upload_parser.add_argument('file', 
+upload_parser.add_argument('documento',
     location='files', 
     type=FileStorage, 
     required=True, 
-    help='Arquivo que será predito pela inteligência artificial'
-)
+    help='Arquivo que será predito pela inteligência artificial')
+
+
+upload_parser.add_argument('tipo', required=True, help='Tipo do documento: cpf, rg, cnh')
+upload_parser.add_argument('objeto', required=True, help='objeto com as informações necessárias a serem validadas, conforme demonstrado no swagger')
+
+
+
 
 @api.route("/")
 class Home(Resource):
@@ -159,19 +172,23 @@ class Upload(Resource):
 
         output_message = list()
         try:
-            #args = upload_parser.parse_args()
-            args = self.api.payload
-            uploaded_file = args['file']  # This is FileStorage instance
+            args = upload_parser.parse_args()
+            # args = self.api.payload
+            uploaded_file = args['documento']  # This is FileStorage instance
             type_file = args['tipo']
+            object_parameter = args['objeto']
+            json_object = json.loads(object_parameter)
 
+            imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             output_message.append(check_file(uploaded_file, type_file))
 
-        except:
+        except Exception as erro:
+            print(erro)
             output_message.append({'erro': 'Arquivo não recebido'}, 400)
             return output_message
 
-
-        message = process_args(args)
+        # uploaded_file, type_file, objeto_json
+        message = process_args(uploaded_file.filename, imagem, type_file, json_object)
         output_message.append(make_prediction(message))
 
         for om in output_message:

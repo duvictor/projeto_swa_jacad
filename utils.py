@@ -5,14 +5,15 @@ responsavel por manter padrões do sistema
 '''
 
 
-def process_args(args):
-    uploaded_file = args['file'][0]  # This is FileStorage instance
-    type_file     = args['tipo'][0]
-    objeto_json   = args['objeto'][0]
+def process_args(file_name, uploaded_file, type_file, objeto_json):
+    # uploaded_file = args['file'][0]  # This is FileStorage instance
+    # type_file     = args['tipo'][0]
+    # objeto_json   = args['objeto'][0]
 
     if type_file == 'RG':
         message = {'DOC_TYPE':   'RG',
-                   'FILE_PATH':  uploaded_file,
+                   'FILE': file_name,
+                   'IMAGE':  uploaded_file,
                    'DOC_NUMBER': {'RG_NOME': objeto_json['RG_NOME'],
                                   'RG_NUMERO': objeto_json['RG_NUMERO'],
                                   'RG_CPF': objeto_json['RG_CPF'],
@@ -20,7 +21,8 @@ def process_args(args):
                    }
     elif type_file == 'CNH':
         message = {'DOC_TYPE': 'CNH',
-                   'FILE_PATH': uploaded_file,
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
                    'DOC_NUMBER': {'CNH_NOME': objeto_json['CNH_NOME'],
                                   'CNH_NUMERO': objeto_json['CNH_NUMERO'],
                                   'RG_NUMERO': objeto_json['RG_NUMERO'],
