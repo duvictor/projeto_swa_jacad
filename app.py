@@ -8,6 +8,8 @@ from werkzeug.datastructures import FileStorage
 from utils import process_args, check_file
 from predict import make_prediction
 
+TOKEN_LOCAL = '1234567890'
+
 app = Flask(__name__)
 
 
@@ -166,6 +168,15 @@ class Upload(Resource):
 
         output_message = list()
         try:
+
+            headers = request.headers
+            bearer = headers.get('Authorization')  # Bearer YourTokenHere
+            token = bearer.split()[0]  # YourTokenHere
+            if token != TOKEN_LOCAL:
+                output_message.append({'erro': 'Falha de autorização'}, 400)
+                return output_message
+
+
             args = upload_parser.parse_args()
             # args = self.api.payload
             uploaded_file = args['documento']  # This is FileStorage instance
