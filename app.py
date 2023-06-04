@@ -8,10 +8,10 @@ from werkzeug.datastructures import FileStorage
 from utils import process_args, check_file
 from predict import make_prediction
 
+
 TOKEN_LOCAL = '1234567890'
 
 app = Flask(__name__)
-
 
 api = Api(app, title='API Mock integração Jacad', version='1.0', description='Api de integração com python flask', prefix='/api')
 
@@ -136,6 +136,7 @@ class Upload(Resource):
         :return:
 
         objeto_retorno = {
+                    'VALIDAR DOCUMENTO: True,
                     'VALIDAR_NOME': True,
                    'VALIDAR_FRENTE_VERSO': True,
                    'VALIDAR_NUMERO': True,
@@ -166,15 +167,15 @@ class Upload(Resource):
     }
         '''
 
-        output_message = list()
+        errors_message = list()
         try:
 
             headers = request.headers
             bearer = headers.get('Authorization')  # Bearer YourTokenHere
             token = bearer.split()[0]  # YourTokenHere
             if token != TOKEN_LOCAL:
-                output_message.append({'erro': 'Falha de autorização'}, 400)
-                return output_message
+                errors_message.append({'erro': 'Falha de autorização'}, 400)
+                return errors_message
 
 
             args = upload_parser.parse_args()
@@ -185,22 +186,23 @@ class Upload(Resource):
             json_object = json.loads(object_parameter)
 
             imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-            output_message.append(check_file(uploaded_file, type_file))
+            errors_message.append(check_file(uploaded_file, type_file))
 
         except Exception as erro:
             print(erro)
-            output_message.append({'erro': 'Arquivo não recebido'}, 400)
-            return output_message
+            errors_message.append({'erro': 'Arquivo não recebido'}, 400)
+            return errors_message
 
         # uploaded_file, type_file, objeto_json
         message = process_args(uploaded_file.filename, imagem, type_file, json_object)
-        output_message.append(make_prediction(message))
+        output_message = make_prediction(message)
 
-        for om in output_message:
-            print(om)
+        if len(errors_message) != 0:
+            output_message['MENSAGENS'].append(errors_message)
+
+        print(output_message)
+
         return output_message
-
-
 
 
 if __name__ == '__main__':

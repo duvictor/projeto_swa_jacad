@@ -1,8 +1,33 @@
 from src.model_manager import load_model, process_prediction
 from src.file_manager import check_file_integrity, read_image
 
+def create_output_object():
+    object = {
+        'VALIDAR_DOCUMENTO': '',
+        'MENSAGENS': '',
+        'VALIDAR_NOME': '',
+        'VALIDAR_FRENTE_VERSO': '',
+        'VALIDAR_NUMERO': '',
+        'VALIDAR_DATA_NASCIMENTO': '',
+        'VALIDAR_DIPLOMA_NOME': '',
+        'VALIDAR_DIPLOMA_GRAU': '',
+        'VALIDAR_DIPLOMA_COLACAO': '',
+        'VALIDAR_DIPLOMA_COLACAO_POSTERIOR': '',
+        'VALIDAR_DIPLOMA_RESTRICOES': '',
+        'VALIDAR_DIPLOMA_CORROMPIDO': '',
+        'VALIDAR_CERTIDAO_NOME': '',
+        'VALIDAR_CERTIDAO_GRAU': '',
+        'VALIDAR_CERTIDAO_COLACAO': '',
+        'VALIDAR_CERTIDAO_COLACAO_POSTERIOR': '',
+        'VALIDAR_CERTIDAO_RESTRICOES': '',
+        'VALIDAR_CERTIDAO_CORROMPIDO': '',
+        'VALIDAR_CERTIDAO_EMISSAO': ''
+    }
+
+    return object
 
 def process_output(message=None, output_message=None, invalid_file=False):
+
 
     if invalid_file:
         return ['O arquivo do documento de identificação está corrompido ou protegido por senha']
@@ -14,16 +39,20 @@ def process_output(message=None, output_message=None, invalid_file=False):
             if not message['DOC_NUMBER']['RG_NOME'] == output_message['RG_NOME']:
                 errors.append('Seu nome está diferente do documento.')
 
+
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
             if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
                 errors.append('O número do RG é divergente do nome informado no cadastro.')
+
 
         if message['DOC_NUMBER']['RG_CPF'] != '':
             if not message['DOC_NUMBER']['RG_CPF'] == output_message['RG_CPF']:
                 errors.append('O número do CPF é divergente do nome informado no cadastro.')
 
+
         if not output_message['RG_NASCIMENTO']:
             errors.append('Documento ilegível ou cortado. não é possivel identificar a data de nascimento')
+
 
     elif message['DOC_TYPE'] == 'CNH':
 
@@ -32,13 +61,16 @@ def process_output(message=None, output_message=None, invalid_file=False):
                 errors.append('Seu nome está diferente do documento.')
 
 
+
         if message['DOC_NUMBER']['CNH_NUMERO'] != '':
             if not message['DOC_NUMBER']['CNH_NUMERO'] == output_message['CNH_NUMERO']:
                 errors.append('O número da CNH é divergente do nome informado no cadastro.')
 
+
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
             if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
                 errors.append('O número do RG é divergente do nome informado no cadastro.')
+
 
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
             if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
@@ -72,12 +104,16 @@ def make_prediction(message):
         boxes, scores, labels = model.predict_on_batch(img)
         boxes /= scale
 
-        output_message = process_prediction(message, boxes, scores, labels)
+        output_object = create_output_object()
+
+        output_object, output_message = process_prediction(message, boxes, scores, labels, output_object)
         print(output_message)
 
         errors = process_output(message, output_message)
 
-    return errors
+        output_object['MENSAGENS'] = errors
+
+    return output_object
 
 #m = {
 #        'DOC_TYPE':  'CNH',
