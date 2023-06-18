@@ -39,16 +39,13 @@ def process_output(message=None, output_message=None, invalid_file=False):
             if not message['DOC_NUMBER']['RG_NOME'] == output_message['RG_NOME']:
                 errors.append('Seu nome está diferente do documento.')
 
-
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
             if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
                 errors.append('O número do RG é divergente do nome informado no cadastro.')
 
-
         if message['DOC_NUMBER']['RG_CPF'] != '':
             if not message['DOC_NUMBER']['RG_CPF'] == output_message['RG_CPF']:
                 errors.append('O número do CPF é divergente do nome informado no cadastro.')
-
 
         if not output_message['RG_NASCIMENTO']:
             errors.append('Documento ilegível ou cortado. não é possivel identificar a data de nascimento')
@@ -60,23 +57,36 @@ def process_output(message=None, output_message=None, invalid_file=False):
             if not message['DOC_NUMBER']['CNH_NOME'] == output_message['CNH_NOME']:
                 errors.append('Seu nome está diferente do documento.')
 
-
-
         if message['DOC_NUMBER']['CNH_NUMERO'] != '':
             if not message['DOC_NUMBER']['CNH_NUMERO'] == output_message['CNH_NUMERO']:
                 errors.append('O número da CNH é divergente do nome informado no cadastro.')
-
 
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
             if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
                 errors.append('O número do RG é divergente do nome informado no cadastro.')
 
+        if message['DOC_NUMBER']['CPF_NUMERO'] != '':
+            if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
+                errors.append('O número do CPF é divergente do nome informado no cadastro.')
+
+    elif message['DOC_TYPE'] == 'CPF':
+
+        if message['DOC_NUMBER']['CPF_NOME'] != '':
+            if not message['DOC_NUMBER']['CPF_NOME'] == output_message['CPF_NOME']:
+                errors.append('Seu nome está diferente do documento.')
+
+
+        if message['DOC_NUMBER']['CPF_ANTIGO_NOME'] != '':
+            if not message['DOC_NUMBER']['CPF_ANTIGO_NOME'] == output_message['CPF_ANTIGO_NOME']:
+                errors.append('Seu nome está diferente do documento.')
 
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
             if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
                 errors.append('O número do CPF é divergente do nome informado no cadastro.')
 
-
+        if message['DOC_NUMBER']['CPF_ANTIGO_NUMERO'] != '':
+            if not message['DOC_NUMBER']['CPF_ANTIGO_NUMERO'] == output_message['CPF_ANTIGO_NUMERO']:
+                errors.append('O número do CPF é divergente do nome informado no cadastro.')
     return errors
 
 

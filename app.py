@@ -168,30 +168,30 @@ class Upload(Resource):
         '''
 
         errors_message = list()
-        try:
+        #try:
 
-            headers = request.headers
-            bearer = headers.get('Authorization')  # Bearer YourTokenHere
-            token = bearer.split()[0]  # YourTokenHere
-            if token != TOKEN_LOCAL:
-                errors_message.append({'erro': 'Falha de autorização'}, 400)
-                return errors_message
+        #    headers = request.headers
+        #    bearer = headers.get('Authorization')  # Bearer YourTokenHere
+        #    token = bearer.split()[0]  # YourTokenHere
+        #    if token != TOKEN_LOCAL:
+        #        errors_message.append({'erro': 'Falha de autorização'}, 400)
+        #        return errors_message
 
 
-            args = upload_parser.parse_args()
-            # args = self.api.payload
-            uploaded_file = args['documento']  # This is FileStorage instance
-            type_file = args['tipo']
-            object_parameter = args['objeto']
-            json_object = json.loads(object_parameter)
+        args = upload_parser.parse_args()
+        # args = self.api.payload
+        uploaded_file = args['documento']  # This is FileStorage instance
+        type_file = args['tipo']
+        object_parameter = args['objeto']
+        json_object = json.loads(object_parameter)
 
-            imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-            errors_message.append(check_file(uploaded_file, type_file))
+        imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        errors_message.append(check_file(uploaded_file, type_file))
 
-        except Exception as erro:
-            print(erro)
-            errors_message.append({'erro': 'Arquivo não recebido'}, 400)
-            return errors_message
+        #except Exception as erro:
+        #    print(erro)
+        #    errors_message.append({'erro': 'Arquivo não recebido'}, 400)
+        #    return errors_message
 
         # uploaded_file, type_file, objeto_json
         message = process_args(uploaded_file.filename, imagem, type_file, json_object)

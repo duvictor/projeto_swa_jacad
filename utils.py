@@ -29,6 +29,66 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
                                   'CPF_NUMERO': objeto_json['CPF_NUMERO'],
                                   }
                    }
+
+    elif type_file == 'CPF':
+        message = {'DOC_TYPE': 'CPF',
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
+                   'DOC_NUMBER': {'CPF_FRENTE': objeto_json['CPF_FRENTE'],
+                                  'CPF_NUMERO': objeto_json['CPF_NUMERO'],
+                                  'CPF_NOME':   objeto_json['CPF_NOME'],
+                                  'CPF_ANTIGO_FRENTE': objeto_json['CPF_ANTIGO_FRENTE'],
+                                  'CPF_ANTIGO_NUMERO': objeto_json['CPF_ANTIGO_NUMERO'],
+                                  'CPF_ANTIGO_NOME':   objeto_json['CPF_ANTIGO_NOME'],
+                                  }
+                   }
+
+    elif type_file == 'RNE':
+        message = {'DOC_TYPE': 'RNE',
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
+                   'DOC_NUMBER': {'RNE_NUMERO': objeto_json['RNE_NUMERO'],
+                                  'RNE_NOM':    objeto_json['RNE_NOME'],
+
+                                  }
+                   }
+
+    elif type_file == 'PASSAPORTE':
+        message = {'DOC_TYPE': 'PASSAPORTE',
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
+                   'DOC_NUMBER': {'PASSAPORTE_NOME':   objeto_json['PASSAPORTE_NOME'],
+                                  'PASSAPORTE_NUMERO': objeto_json['PASSAPORTE_NUMERO'],
+
+                                  }
+                   }
+
+    elif type_file == 'PASSAPORTE':
+        message = {'DOC_TYPE': 'PASSAPORTE',
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
+                   'DOC_NUMBER': {'PASSAPORTE_NOME':   objeto_json['PASSAPORTE_NOME'],
+                                  'PASSAPORTE_NUMERO': objeto_json['PASSAPORTE_NUMERO'],
+
+                                  }
+                   }
+
+    elif type_file == 'DIPLOMA_CERTIDAO':
+        message = {'DOC_TYPE': 'DIPLOMA_CERTIDAO',
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
+                   'DOC_NUMBER': {'DIPLOMA_NOME':   objeto_json['DIPLOMA_NOME'],
+                                  'DIPLOMA_GRAU': objeto_json['DIPLOMA_GRAU'],
+                                  'DIPLOMA_DATA_COLACAO': objeto_json['DIPLOMA_DATA_COLACAO'],
+                                  'CERTIDAO_NOME': objeto_json['CERTIDAO_NOME'],
+                                  'CERTIDAO_GRAU': objeto_json['CERTIDAO_GRAU'],
+                                  'CERTIDAO_DATA_COLACAO': objeto_json['CERTIDAO_DATA_COLACAO'],
+                                  }
+                   }
+
+    else:
+        raise ValueError("Invalid Document Type Provided on Message")
+
     return message
 
 
