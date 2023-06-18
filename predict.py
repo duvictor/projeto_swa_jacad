@@ -59,15 +59,15 @@ def process_output(message=None, output_message=None, invalid_file=False):
 
         if message['DOC_NUMBER']['CNH_NUMERO'] != '':
             if not message['DOC_NUMBER']['CNH_NUMERO'] == output_message['CNH_NUMERO']:
-                errors.append('O número da CNH é divergente do nome informado no cadastro.')
+                errors.append('O número da CNH é divergente do número informado no cadastro.')
 
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
             if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
-                errors.append('O número do RG é divergente do nome informado no cadastro.')
+                errors.append('O número do RG é divergente do número informado no cadastro.')
 
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
             if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
-                errors.append('O número do CPF é divergente do nome informado no cadastro.')
+                errors.append('O número do CPF é divergente do número informado no cadastro.')
 
     elif message['DOC_TYPE'] == 'CPF':
 
@@ -82,11 +82,33 @@ def process_output(message=None, output_message=None, invalid_file=False):
 
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
             if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
-                errors.append('O número do CPF é divergente do nome informado no cadastro.')
+                errors.append('O número do CPF é divergente do número informado no cadastro.')
 
         if message['DOC_NUMBER']['CPF_ANTIGO_NUMERO'] != '':
             if not message['DOC_NUMBER']['CPF_ANTIGO_NUMERO'] == output_message['CPF_ANTIGO_NUMERO']:
-                errors.append('O número do CPF é divergente do nome informado no cadastro.')
+                errors.append('O número do CPF é divergente do número informado no cadastro.')
+
+ #   elif message['DOC_TYPE'] == 'RNE':
+#
+ #       if message['DOC_NUMBER']['RNE_NOME'] != '':
+ #           if not message['DOC_NUMBER']['RNE_NOME'] == output_message['RNE_NOME']:
+ #               errors.append('Seu nome está diferente do documento.')
+#
+ #       if message['DOC_NUMBER']['RNE_NUMERO'] != '':
+ #           if not message['DOC_NUMBER']['RNE_NUMERO'] == output_message['RNE_NUMERO']:
+ #               errors.append('O número do RNE é divergente do número informado no cadastro.')
+ #
+ #   elif message['DOC_TYPE'] == 'PASSAPORTE':
+#
+ #       if message['DOC_NUMBER']['PASSAPORTE_NOME'] != '':
+ #           if not message['DOC_NUMBER']['PASSAPORTE_NOME'] == output_message['PASSAPORTE_NOME']:
+ #               errors.append('Seu nome está diferente do documento.')
+#
+#
+ #       if message['DOC_NUMBER']['PASSAPORTE_NUMERO'] != '':
+ #           if not message['DOC_NUMBER']['PASSAPORTE_NUMERO'] == output_message['PASSAPORTE_NUMERO']:
+ #               errors.append('O número do PASSAPORTE é divergente do número informado no cadastro.')
+
     return errors
 
 
