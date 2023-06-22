@@ -114,11 +114,13 @@ def process_output(message=None, output_message=None, invalid_file=False):
 
 def make_prediction(message):
     """"
-    message = {
-        DOC_TYPE:   document type to be validated
-        FILE_PATH:  path to file
-        DOC_NUMBER: user provided document number
-    }
+message = {'DOC_TYPE': 'PASSAPORTE',
+                   'FILE': file_name,
+                   'IMAGE': uploaded_file,
+                   'DOC_NUMBER': {'PASSAPORTE_NOME':   objeto_json['PASSAPORTE_NOME'],
+                                  'PASSAPORTE_NUMERO': objeto_json['PASSAPORTE_NUMERO'],
+
+          }
     """
 
     # if check_file_integrity(message['FILE_PATH']):

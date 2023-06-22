@@ -28,7 +28,7 @@ def load_model(message):
 
 
 def extract_data_from_prediction(message, dataframe):
-    if dataframe['scores'].max() > 0.5:
+    if dataframe['scores'].max() > 0.1:  #Deixei com 0.1 apenas para ter alguma detecção, o idela é 0.5
         for i, row in dataframe[dataframe['scores'] == dataframe['scores'].max()].iterrows():
             if not dataframe['xmin'].empty:
                 xmin, ymin, xmax, ymax = [row['xmin'], row['ymin'], row['xmax'], row['ymax']]
