@@ -12,7 +12,7 @@ def load_model(message):
         return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
 
     elif message['DOC_TYPE'] == 'CPF':
-        return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
+        return models.load_model('./models/modelo_CPF.h5', backbone_name='resnet50')
 
     #elif message['DOC_TYPE'] == 'RNE':
     #    return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
@@ -49,7 +49,7 @@ def process_RG_predicition(message, results, output_object):
     classes = ['RG_FRENTE', 'RG_VERSO', 'RG_NUMERO', 'RG_NOME', 'RG_NASCIMENTO', 'RG_CPF']
     results['labels'] = results.apply(lambda row: classes[int(row['labels'])],axis = 1)
 
-    valaildar_documento = True
+    validar_documento = True
 
     RG_FRENTE     = verify_object_existence(results[results['labels'] == 'RG_FRENTE'])
     RG_VERSO      = verify_object_existence(results[results['labels'] == 'RG_VERSO'])
@@ -83,7 +83,7 @@ def process_RG_predicition(message, results, output_object):
         output_object['VALIDAR_DATA_NASCIMENTO'] = False
         valaildar_documento = False
 
-    output_object['VALIDAR_DOCUMENTO'] = valaildar_documento
+    output_object['VALIDAR_DOCUMENTO'] = validar_documento
 
     return output_object, {'RG_FRENTE':RG_FRENTE, 'RG_VERSO':RG_VERSO, 'RG_NASCIMENTO': RG_NASCIMENTO, 'RG_NOME':RG_NOME, 'RG_NUMERO': RG_NUMERO, 'RG_CPF': RG_CPF}
 

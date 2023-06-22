@@ -8,3 +8,4 @@ Werkzeug~=2.2.3
 opencv-python
 opencv-python~=4.6.0.66
 tensorflow~=2.9.3
+keras-ocr

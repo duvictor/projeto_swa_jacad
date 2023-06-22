@@ -131,7 +131,7 @@ def make_prediction(message):
     else:
 
         model = load_model(message)
-        img, scale   = read_image(message)
+        img, scale = read_image(message)
 
         boxes, scores, labels = model.predict_on_batch(img)
         boxes /= scale
