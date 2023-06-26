@@ -167,7 +167,7 @@ class Upload(Resource):
     }
         '''
 
-        errors_message = list()
+        errors_message = []
 
         try:
             headers = request.headers
@@ -198,7 +198,7 @@ class Upload(Resource):
         message = process_args(uploaded_file.filename, imagem, type_file, json_object)
         output_message = make_prediction(message)
 
-        if len(errors_message) != 0:
+        if errors_message[0] != None:
             output_message['MENSAGENS'].append(errors_message)
 
         print(output_message)
