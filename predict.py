@@ -102,7 +102,7 @@ def process_output(message=None, output_message=None):
                 errors.append('A data de colação no documento é divergente da data informada.')
             else:
                 if not output_message['VALIDAR_DATA_COMPRA']:
-                    errors.append('A data de compra do curso é posterior é a data de colação de grau.')
+                    errors.append('A data de colação de grau é posterior a data de compra.')
         else:
             errors.append('A data de colação não está legível no documento.')
 
@@ -140,7 +140,7 @@ def process_output(message=None, output_message=None):
                 errors.append('A data da colação é diferente da informada.')
             else:
                 if not output_message['VALIDAR_DATA_COMPRA']:
-                    errors.append('A data de compra do curso é posterior é a data de colação de grau.')
+                    errors.append('A data de colação de grau é posterior a data de compra.')
         else:
             errors.append('A data de colação não está legível no documento.')
 
