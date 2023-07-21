@@ -18,7 +18,6 @@ def create_output_object():
         'VALIDAR_DATA_NASCIMENTO': '',
         'VALIDAR_DIPLOMA_NOME': '',
         'VALIDAR_DIPLOMA_GRAU': '',
-        'VALIDAR_DIPLOMA_COLACAO': '',  #Esse item diz respeito a data de colação não ser posterior a compra. É necessário recebermos a data da compra, ou então essa verificação dever ser feito por outro time
         'VALIDAR_CERTIDAO_NOME': '',
         'VALIDAR_CERTIDAO_GRAU': '',
         'VALIDAR_CERTIDAO_COLACAO': '',
@@ -27,7 +26,8 @@ def create_output_object():
         'VALIDAR_RESTRICAO_CERTIDAO_DATA_EMISSAO_HOJE': '',
         'VALIDAR_RESTRICOES_GRAU_BLT': '',
         'VALIDAR_RESTRICOES_GRAU_SFE': '',
-        'VALIDAR_CORROMPIDO': ''
+        'VALIDAR_CORROMPIDO': '',
+        'VALIDAR_DATA_COMPRA': ''
     }
     return object
 
@@ -103,6 +103,23 @@ def calcular_intervalo_um_ano(data1, data2):
     else:
         return False
 
+def verificar_data_compra(data_compra, data_colacao):
+    # Converter as datas para objetos datetime
+    try:
+        data_compra_obj = converter_data_pt_br(data_compra)
+        data_colacao_obj = converter_data_pt_br(data_colacao)
+    except ValueError:
+        return ValueError
+
+    # Calcular a diferença entre as duas datas
+    diferenca = (data_colacao_obj - data_compra_obj).days
+
+    # Verificar se a data da compra é posterior a data de colacao
+    if diferenca < 0:
+        return False
+    else:
+        return True
+
 
 def process_args(file_name, uploaded_file, type_file, objeto_json):
     # uploaded_file = args['file'][0]  # This is FileStorage instance
@@ -165,6 +182,7 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
                    'DOC_NUMBER': {'DOC_NOME':   processa_str(objeto_json['DIPLOMA_NOME']),
                                   'DOC_GRAU': processa_str(objeto_json['DIPLOMA_GRAU']),
                                   'DOC_DATA_COLACAO': objeto_json['DIPLOMA_DATA_COLACAO'],
+                                  'DATA_COMPRA': objeto_json['DATA_COMPRA']
                                   }
                    }
 
@@ -176,9 +194,9 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
                                   'DOC_GRAU': processa_str(objeto_json['CERTIDAO_GRAU']),
                                   'DOC_DATA_COLACAO': objeto_json['CERTIDAO_DATA_COLACAO'],
                                   'DOC_DATA_EMISSAO': objeto_json['CERTIDAO_DATA_EMISSAO'],
+                                  'DATA_COMPRA': objeto_json['DATA_COMPRA']
                                   }
                    }
-
 
     else:
         raise ValueError("Invalid Document Type Provided on Message")

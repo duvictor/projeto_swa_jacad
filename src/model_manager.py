@@ -2,7 +2,7 @@ from keras_retinanet import models
 import pandas as pd
 import numpy as np
 from src.OCR import OCR
-from utils import calcular_intervalo_um_ano, processa_str
+from utils import calcular_intervalo_um_ano, processa_str, verificar_data_compra
 import datetime
 
 
@@ -275,7 +275,7 @@ def process_DIPLOMA_predicition(message, results, output_object):
     validar_documento = True
 
     DOC_DIPLOMA      = verify_object_existence(results[results['labels'] == 'DOC_DIPLOMA'])
-    DOC_DATA_COLACAO = verify_object_existence(results[results['labels'] == 'DOC_DATA_COLACAO'])
+    DOC_DATA_COLACAO = extract_data_from_prediction(message, results[results['labels'] == 'DOC_DATA_COLACAO'])
     DOC_NOME         = extract_data_from_prediction(message, results[results['labels'] == 'DOC_NOME'])
     DOC_GRAU         = extract_data_from_prediction(message, results[results['labels'] == 'DOC_GRAU'])
 
@@ -304,8 +304,9 @@ def process_DIPLOMA_predicition(message, results, output_object):
         output_object['VALIDAR_DIPLOMA_GRAU'] = False
         validar_documento = False
 
-    if DOC_DATA_COLACAO:
+    if DOC_DATA_COLACAO == message['DOC_NUMBER']['DOC_DATA_COLACAO']:
         output_object['VALIDAR_DIPLOMA_COLACAO'] = True
+        output_object['VALIDAR_DATA_COMPRA']     = verificar_data_compra(message['DOC_NUMBER']['DATA_COMPRA'], DOC_DATA_COLACAO)
     else:
         output_object['VALIDAR_DIPLOMA_COLACAO'] = False
         validar_documento = False
@@ -360,6 +361,7 @@ def process_CERTI_predicition(message, results, output_object):
 
     if CERTIDAO_DATA_COLACAO == message['DOC_NUMBER']['DOC_DATA_COLACAO']:
         output_object['VALIDAR_CERTIDAO_COLACAO'] = True
+        output_object['VALIDAR_DATA_COMPRA'] = verificar_data_compra(message['DOC_NUMBER']['DATA_COMPRA'], CERTIDAO_DATA_COLACAO)
     else:
         output_object['VALIDAR_CERTIDAO_COLACAO'] = False
         validar_documento = False
