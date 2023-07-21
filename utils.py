@@ -4,6 +4,105 @@ responsavel por manter padrões do sistema
 2 = a imagens grandes e nítidas, mínino 1024 por 1080
 '''
 
+from dateutil.parser import parse
+from datetime import datetime
+from unidecode import unidecode
+
+def create_output_object():
+    object = {
+        'VALIDAR_DOCUMENTO': '',
+        'MENSAGENS': '',
+        'VALIDAR_NOME': '',
+        'VALIDAR_FRENTE_VERSO': '',
+        'VALIDAR_NUMERO': '',
+        'VALIDAR_DATA_NASCIMENTO': '',
+        'VALIDAR_DIPLOMA_NOME': '',
+        'VALIDAR_DIPLOMA_GRAU': '',
+        'VALIDAR_DIPLOMA_COLACAO': '',  #Esse item diz respeito a data de colação não ser posterior a compra. É necessário recebermos a data da compra, ou então essa verificação dever ser feito por outro time
+        'VALIDAR_CERTIDAO_NOME': '',
+        'VALIDAR_CERTIDAO_GRAU': '',
+        'VALIDAR_CERTIDAO_COLACAO': '',
+        'VALIDAR_CERTIDAO_EMISSAO': '',
+        'VALIDAR_RESTRICAO_CERTIDAO_DATA_EMISSAO_COLACAO': '',
+        'VALIDAR_RESTRICAO_CERTIDAO_DATA_EMISSAO_HOJE': '',
+        'VALIDAR_RESTRICOES_GRAU_BLT': '',
+        'VALIDAR_RESTRICOES_GRAU_SFE': '',
+        'VALIDAR_CORROMPIDO': ''
+    }
+    return object
+
+def processa_str(texto):
+    caracteres_permitidos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 "
+    texto_sem_especiais = ''.join(caractere for caractere in unidecode(str(texto)) if caractere in caracteres_permitidos)
+    return str.lower(texto_sem_especiais)
+
+
+def parse_data_pt_br(data_texto):
+    meses_pt_br = {
+        'Janeiro': '01',
+        'Fevereiro': '02',
+        'Março': '03',
+        'Abril': '04',
+        'Maio': '05',
+        'Junho': '06',
+        'Julho': '07',
+        'Agosto': '08',
+        'Setembro': '09',
+        'Outubro': '10',
+        'Novembro': '11',
+        'Dezembro': '12',
+        'janeiro': '01',
+        'fevereiro': '02',
+        'março': '03',
+        'abril': '04',
+        'maio': '05',
+        'junho': '06',
+        'julho': '07',
+        'agosto': '08',
+        'setembro': '09',
+        'outubro': '10',
+        'novembro': '11',
+        'dezembro': '12'
+    }
+
+    for mes_pt_br, mes_num in meses_pt_br.items():
+        data_texto = data_texto.replace(mes_pt_br, mes_num)
+
+    try:
+        data_obj = datetime.strptime(data_texto, '%d de %m de %Y')
+        return data_obj
+    except ValueError:
+        raise ValueError("Formato de data em português inválido.")
+
+
+def converter_data_pt_br(data_texto):
+    try:
+        data_obj = parse(data_texto)
+        return data_obj
+    except ValueError:
+        try:
+            data_obj = parse_data_pt_br(data_texto)
+            return data_obj
+        except ValueError as e:
+            raise ValueError(str(e) + " Tente fornecer uma data válida em formato DD/MM/YYYY ou mês por extenso.")
+
+def calcular_intervalo_um_ano(data1, data2):
+    # Converter as datas para objetos datetime
+    try:
+        data1_obj = converter_data_pt_br(data1)
+        data2_obj = converter_data_pt_br(data2)
+    except ValueError:
+        return ValueError
+
+    # Calcular a diferença entre as duas datas
+    diferenca = (data2_obj - data1_obj).days
+
+    # Verificar se o intervalo é de até um ano (aproximadamente 365 dias)
+    if diferenca > 365:
+        return True
+    else:
+        return False
+
 
 def process_args(file_name, uploaded_file, type_file, objeto_json):
     # uploaded_file = args['file'][0]  # This is FileStorage instance
@@ -14,19 +113,19 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE':   'RG',
                    'FILE': file_name,
                    'IMAGE':  uploaded_file,
-                   'DOC_NUMBER': {'RG_NOME': objeto_json['RG_NOME'],
-                                  'RG_NUMERO': objeto_json['RG_NUMERO'],
-                                  'RG_CPF': objeto_json['RG_CPF'],
+                   'DOC_NUMBER': {'RG_NOME': processa_str(objeto_json['RG_NOME']),
+                                  'RG_NUMERO': processa_str(objeto_json['RG_NUMERO']),
+                                  'RG_CPF': processa_str(objeto_json['RG_CPF']),
                                  }
                    }
     elif type_file == 'CNH':
         message = {'DOC_TYPE': 'CNH',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'CNH_NOME': objeto_json['CNH_NOME'],
-                                  'CNH_NUMERO': objeto_json['CNH_NUMERO'],
-                                  'RG_NUMERO': objeto_json['RG_NUMERO'],
-                                  'CPF_NUMERO': objeto_json['CPF_NUMERO'],
+                   'DOC_NUMBER': {'CNH_NOME': processa_str(objeto_json['CNH_NOME']),
+                                  'CNH_NUMERO': processa_str(objeto_json['CNH_NUMERO']),
+                                  'RG_NUMERO': processa_str(objeto_json['RG_NUMERO']),
+                                  'CPF_NUMERO': processa_str(objeto_json['CPF_NUMERO']),
                                   }
                    }
 
@@ -34,12 +133,8 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE': 'CPF',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'CPF_FRENTE': objeto_json['CPF_FRENTE'],
-                                  'CPF_NUMERO': objeto_json['CPF_NUMERO'],
-                                  'CPF_NOME':   objeto_json['CPF_NOME'],
-                                  'CPF_ANTIGO_FRENTE': objeto_json['CPF_ANTIGO_FRENTE'],
-                                  'CPF_ANTIGO_NUMERO': objeto_json['CPF_ANTIGO_NUMERO'],
-                                  'CPF_ANTIGO_NOME':   objeto_json['CPF_ANTIGO_NOME'],
+                   'DOC_NUMBER': {'CPF_NOME':   processa_str(objeto_json['CPF_NOME']),
+                                  'CPF_NUMERO': processa_str(objeto_json['CPF_NUMERO'])
                                   }
                    }
 
@@ -47,8 +142,8 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE': 'RNE',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'RNE_NUMERO': objeto_json['RNE_NUMERO'],
-                                  'RNE_NOM':    objeto_json['RNE_NOME'],
+                   'DOC_NUMBER': {'RNE_NUMERO': processa_str(objeto_json['RNE_NUMERO']),
+                                  'RNE_NOME':    processa_str(objeto_json['RNE_NOME']),
 
                                   }
                    }
@@ -57,34 +152,33 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE': 'PASSAPORTE',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'PASSAPORTE_NOME':   objeto_json['PASSAPORTE_NOME'],
-                                  'PASSAPORTE_NUMERO': objeto_json['PASSAPORTE_NUMERO'],
+                   'DOC_NUMBER': {'PASSAPORTE_NOME':   processa_str(objeto_json['PASSAPORTE_NOME']),
+                                  'PASSAPORTE_NUMERO': processa_str(objeto_json['PASSAPORTE_NUMERO']),
 
                                   }
                    }
 
-    elif type_file == 'PASSAPORTE':
-        message = {'DOC_TYPE': 'PASSAPORTE',
+    elif type_file == 'DIPLOMA':
+        message = {'DOC_TYPE': 'DIPLOMA',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'PASSAPORTE_NOME':   objeto_json['PASSAPORTE_NOME'],
-                                  'PASSAPORTE_NUMERO': objeto_json['PASSAPORTE_NUMERO'],
-
+                   'DOC_NUMBER': {'DOC_NOME':   processa_str(objeto_json['DIPLOMA_NOME']),
+                                  'DOC_GRAU': processa_str(objeto_json['DIPLOMA_GRAU']),
+                                  'DOC_DATA_COLACAO': objeto_json['DIPLOMA_DATA_COLACAO'],
                                   }
                    }
 
-    elif type_file == 'DIPLOMA_CERTIDAO':
-        message = {'DOC_TYPE': 'DIPLOMA_CERTIDAO',
+    elif type_file == 'CERTIDAO' or type_file == 'CERTIFICADO':
+        message = {'DOC_TYPE': 'CERTIFICADO',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'DIPLOMA_NOME':   objeto_json['DIPLOMA_NOME'],
-                                  'DIPLOMA_GRAU': objeto_json['DIPLOMA_GRAU'],
-                                  'DIPLOMA_DATA_COLACAO': objeto_json['DIPLOMA_DATA_COLACAO'],
-                                  'CERTIDAO_NOME': objeto_json['CERTIDAO_NOME'],
-                                  'CERTIDAO_GRAU': objeto_json['CERTIDAO_GRAU'],
-                                  'CERTIDAO_DATA_COLACAO': objeto_json['CERTIDAO_DATA_COLACAO'],
+                   'DOC_NUMBER': {'DOC_NOME': processa_str(objeto_json['CERTIDAO_NOME']),
+                                  'DOC_GRAU': processa_str(objeto_json['CERTIDAO_GRAU']),
+                                  'DOC_DATA_COLACAO': objeto_json['CERTIDAO_DATA_COLACAO'],
+                                  'DOC_DATA_EMISSAO': objeto_json['CERTIDAO_DATA_EMISSAO'],
                                   }
                    }
+
 
     else:
         raise ValueError("Invalid Document Type Provided on Message")

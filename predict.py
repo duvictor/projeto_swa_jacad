@@ -1,118 +1,180 @@
 from src.model_manager import load_model, process_prediction
 from src.file_manager import check_file_integrity, read_image
 
-def create_output_object():
-    object = {
-        'VALIDAR_DOCUMENTO': '',
-        'MENSAGENS': '',
-        'VALIDAR_NOME': '',
-        'VALIDAR_FRENTE_VERSO': '',
-        'VALIDAR_NUMERO': '',
-        'VALIDAR_DATA_NASCIMENTO': '',
-        'VALIDAR_DIPLOMA_NOME': '',
-        'VALIDAR_DIPLOMA_GRAU': '',
-        'VALIDAR_DIPLOMA_COLACAO': '',
-        'VALIDAR_DIPLOMA_COLACAO_POSTERIOR': '',
-        'VALIDAR_DIPLOMA_RESTRICOES': '',
-        'VALIDAR_DIPLOMA_CORROMPIDO': '',
-        'VALIDAR_CERTIDAO_NOME': '',
-        'VALIDAR_CERTIDAO_GRAU': '',
-        'VALIDAR_CERTIDAO_COLACAO': '',
-        'VALIDAR_CERTIDAO_COLACAO_POSTERIOR': '',
-        'VALIDAR_CERTIDAO_RESTRICOES': '',
-        'VALIDAR_CERTIDAO_CORROMPIDO': '',
-        'VALIDAR_CERTIDAO_EMISSAO': ''
-    }
-
-    return object
-
-def process_output(message=None, output_message=None, invalid_file=False):
 
 
-    if invalid_file:
-        return ['O arquivo do documento de identificação está corrompido ou protegido por senha']
+def process_output(message=None, output_message=None):
+
 
     errors = list()
     if message['DOC_TYPE'] == 'RG':
 
-        if message['DOC_NUMBER']['RG_NOME'] != '':
+        if output_message['RG_NOME'] != '':
             if not message['DOC_NUMBER']['RG_NOME'] == output_message['RG_NOME']:
                 errors.append('Seu nome está diferente do documento.')
+        else:
+            errors.append('Seu nome não está legível no documento.')
 
-        if message['DOC_NUMBER']['RG_NUMERO'] != '':
+        if output_message['RG_NUMERO'] != '':
             if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
                 errors.append('O número do RG é divergente do nome informado no cadastro.')
+        else:
+            errors.append('O número de RG não está legível.')
 
         if message['DOC_NUMBER']['RG_CPF'] != '':
-            if not message['DOC_NUMBER']['RG_CPF'] == output_message['RG_CPF']:
-                errors.append('O número do CPF é divergente do nome informado no cadastro.')
+            if output_message['RG_CPF'] != '':
+                if not message['DOC_NUMBER']['RG_CPF'] == output_message['RG_CPF']:
+                    errors.append('O número do CPF é divergente do nome informado no cadastro.')
+            else:
+                errors.append('O usuário informou o número de CPF junto com o RG, porém o número de CPF não está legível.')
 
         if not output_message['RG_NASCIMENTO']:
-            errors.append('Documento ilegível ou cortado. não é possivel identificar a data de nascimento')
+            errors.append('Documento ilegível ou cortado. Não é possível identificar a data de nascimento')
 
 
     elif message['DOC_TYPE'] == 'CNH':
 
-        if message['DOC_NUMBER']['CNH_NOME'] != '':
+        if output_message['CNH_NOME'] != '':
             if not message['DOC_NUMBER']['CNH_NOME'] == output_message['CNH_NOME']:
                 errors.append('Seu nome está diferente do documento.')
+        else:
+            errors.append('Seu nome não está legível no documento.')
 
-        if message['DOC_NUMBER']['CNH_NUMERO'] != '':
+        if output_message['CNH_NUMERO'] != '':
             if not message['DOC_NUMBER']['CNH_NUMERO'] == output_message['CNH_NUMERO']:
                 errors.append('O número da CNH é divergente do número informado no cadastro.')
+        else:
+            errors.append('O número de CNH não está legível.')
 
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
-            if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
-                errors.append('O número do RG é divergente do número informado no cadastro.')
+            if output_message['RG_NUMERO'] != '':
+                if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
+                    errors.append('O número do RG é divergente do número informado no cadastro.')
+            else:
+                errors.append('O usuário informou o número de RG junto com a CNH, porém o número de RG não está legível.')
 
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
-            if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
-                errors.append('O número do CPF é divergente do número informado no cadastro.')
+            if output_message['CPF_NUMERO'] != '':
+                if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
+                    errors.append('O número do CPF é divergente do número informado no cadastro.')
+            else:
+                errors.append('O usuário informou o número de CPF junto com a CNH, porém o número de CPF não está legível.')
 
     elif message['DOC_TYPE'] == 'CPF':
 
-        if message['DOC_NUMBER']['CPF_NOME'] != '':
+        if output_message['CPF_NOME'] != '':
             if not message['DOC_NUMBER']['CPF_NOME'] == output_message['CPF_NOME']:
                 errors.append('Seu nome está diferente do documento.')
+        else:
+            errors.append('Seu nome não está legível no documento.')
 
-
-        if message['DOC_NUMBER']['CPF_ANTIGO_NOME'] != '':
-            if not message['DOC_NUMBER']['CPF_ANTIGO_NOME'] == output_message['CPF_ANTIGO_NOME']:
-                errors.append('Seu nome está diferente do documento.')
-
-        if message['DOC_NUMBER']['CPF_NUMERO'] != '':
+        if output_message['CPF_NUMERO'] != '':
             if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
                 errors.append('O número do CPF é divergente do número informado no cadastro.')
+        else:
+            errors.append('O número de CPF não está legível.')
 
-        if message['DOC_NUMBER']['CPF_ANTIGO_NUMERO'] != '':
-            if not message['DOC_NUMBER']['CPF_ANTIGO_NUMERO'] == output_message['CPF_ANTIGO_NUMERO']:
-                errors.append('O número do CPF é divergente do número informado no cadastro.')
 
- #   elif message['DOC_TYPE'] == 'RNE':
-#
- #       if message['DOC_NUMBER']['RNE_NOME'] != '':
- #           if not message['DOC_NUMBER']['RNE_NOME'] == output_message['RNE_NOME']:
- #               errors.append('Seu nome está diferente do documento.')
-#
- #       if message['DOC_NUMBER']['RNE_NUMERO'] != '':
- #           if not message['DOC_NUMBER']['RNE_NUMERO'] == output_message['RNE_NUMERO']:
- #               errors.append('O número do RNE é divergente do número informado no cadastro.')
- #
- #   elif message['DOC_TYPE'] == 'PASSAPORTE':
-#
- #       if message['DOC_NUMBER']['PASSAPORTE_NOME'] != '':
- #           if not message['DOC_NUMBER']['PASSAPORTE_NOME'] == output_message['PASSAPORTE_NOME']:
- #               errors.append('Seu nome está diferente do documento.')
-#
-#
- #       if message['DOC_NUMBER']['PASSAPORTE_NUMERO'] != '':
- #           if not message['DOC_NUMBER']['PASSAPORTE_NUMERO'] == output_message['PASSAPORTE_NUMERO']:
- #               errors.append('O número do PASSAPORTE é divergente do número informado no cadastro.')
+
+
+    elif message['DOC_TYPE'] == 'DIPLOMA':
+
+        if output_message['DOC_NOME'] != '':
+            if not message['DOC_NUMBER']['DOC_NOME'] == output_message['DOC_NOME']:
+                errors.append('Seu nome está diferente do documento.')
+        else:
+            errors.append('Seu nome não está legível no documento.')
+
+        if output_message['DOC_GRAU'] != '':
+            if not message['DOC_NUMBER']['DOC_GRAU'] == output_message['DOC_GRAU']:
+                errors.append('O grau do certificado é diferente do informado.')
+            else:
+                if output_message['VALIDAR_RESTRICOES_GRAU_BLT'] == False:
+                    errors.append('É necessário que seja Diploma do Ensino Superior com título de Bacharel, Licenciatura ou Tecnólogo.')
+
+                if output_message['VALIDAR_RESTRICOES_GRAU_SFE'] == False:
+                    errors.append('O curso informado não é permitido para solicitação de pós-graduação.')
+        else:
+            errors.append('O grau não está legível no documento.')
+
+        if not output_message['DOC_DATA_COLACAO']:
+            errors.append('A data de colação não está legível no documento.')
+
+        if output_message['DOC_GRAU'] != '':
+            if not message['DOC_NUMBER']['DOC_GRAU'] == output_message['DOC_GRAU']:
+                errors.append('O grau do certificado é diferente do informado.')
+            else:
+                if output_message['VALIDAR_RESTRICOES_GRAU'] == False:
+                    errors.append('É necessário que seja Diploma do Ensino Superior com título de Bacharel, Licenciatura ou Tecnólogo.')
+
+
+
+    elif message['DOC_TYPE'] == 'CERTIFICADO':
+        if output_message['DOC_NOME'] != '':
+            if not message['DOC_NUMBER']['DOC_NOME'] == output_message['DOC_NOME']:
+                errors.append('Seu nome está diferente do documento.')
+        else:
+            errors.append('Seu nome não está legível no documento.')
+
+
+        if output_message['DOC_GRAU'] != '':
+            if not message['DOC_NUMBER']['DOC_GRAU'] == output_message['DOC_GRAU']:
+                errors.append('O grau do certificado é diferente do informado.')
+            else:
+                if output_message['VALIDAR_RESTRICOES_GRAU_BLT'] == False:
+                    errors.append('É necessário que seja Diploma do Ensino Superior com título de Bacharel, Licenciatura ou Tecnólogo.')
+
+                if output_message['VALIDAR_RESTRICOES_GRAU_SFE'] == False:
+                    errors.append('O curso informado  não é permitido para solicitação de pós-graduação.')
+        else:
+            errors.append('O grau não está legível no documento.')
+
+        if output_message['DOC_DATA_COLACAO'] != '':
+            if not message['DOC_NUMBER']['DOC_DATA_COLACAO'] == output_message['DOC_DATA_COLACAO']:
+                errors.append('A data da colação é diferente da informada.')
+        else:
+            errors.append('A data de colação não está legível no documento.')
+
+        if output_message['DOC_DATA_EMISSAO'] != '':
+            if not message['DOC_NUMBER']['DOC_DATA_EMISSAO'] == output_message['DOC_DATA_EMISSAO']:
+                errors.append('A data da emissão do certificado/certidão é diferente da informada.')
+        else:
+            errors.append('A data de emissão não está legível no documento.')
+
+        if output_message['DOC_DATA_EMISSAO'] != '' and output_message['DOC_DATA_EMISSAO'] != '':
+            if message['DOC_NUMBER']['DOC_DATA_COLACAO'] == output_message['DOC_DATA_COLACAO'] and message['DOC_NUMBER']['DOC_DATA_EMISSAO'] == output_message['DOC_DATA_EMISSAO']:
+                if output_message['VALIDAR_RESTRICAO_DATA_EMISSAO_COLACAO'] == False:
+                    errors.append('A data de emissão do documento não pode ser superior a 1 ano da data da colação atual.')
+                if output_message['VALIDAR_RESTRICAO_DATA_EMISSAO_HOJE'] == False:
+                    errors.append('Data de emissão do certificado de colação de grau está fora do prazo permitido (até 1 ano antes da data atual).')
+
+
+
+    #   elif message['DOC_TYPE'] == 'RNE':
+    #
+    #       if message['DOC_NUMBER']['RNE_NOME'] != '':
+    #           if not message['DOC_NUMBER']['RNE_NOME'] == output_message['RNE_NOME']:
+    #               errors.append('Seu nome está diferente do documento.')
+    #
+    #       if message['DOC_NUMBER']['RNE_NUMERO'] != '':
+    #           if not message['DOC_NUMBER']['RNE_NUMERO'] == output_message['RNE_NUMERO']:
+    #               errors.append('O número do RNE é divergente do número informado no cadastro.')
+    #
+    #   elif message['DOC_TYPE'] == 'PASSAPORTE':
+    #
+    #       if message['DOC_NUMBER']['PASSAPORTE_NOME'] != '':
+    #           if not message['DOC_NUMBER']['PASSAPORTE_NOME'] == output_message['PASSAPORTE_NOME']:
+    #               errors.append('Seu nome está diferente do documento.')
+    #
+    #
+    #       if message['DOC_NUMBER']['PASSAPORTE_NUMERO'] != '':
+    #           if not message['DOC_NUMBER']['PASSAPORTE_NUMERO'] == output_message['PASSAPORTE_NUMERO']:
+    #               errors.append('O número do PASSAPORTE é divergente do número informado no cadastro.')
 
     return errors
 
 
-def make_prediction(message):
+def make_prediction(message, output_object):
     """"
 message = {'DOC_TYPE': 'PASSAPORTE',
                    'FILE': file_name,
@@ -138,7 +200,7 @@ message = {'DOC_TYPE': 'PASSAPORTE',
         boxes, scores, labels = model.predict_on_batch(img)
         boxes /= scale
 
-        output_object = create_output_object()
+
 
         output_object, output_message = process_prediction(message, boxes, scores, labels, output_object)
         print(output_message)
@@ -172,19 +234,16 @@ responsavel por manter padrões do sistema
 
 """"
 tipos_documentos ={'RG', 'CNH,', 'PASSAPORTE', 'RNE', 'DIPLOMA', 'CERTIDAO'}
-objeto_recebido = { 'RG_FRENTE': True,
-                   'RG_VERSO': True,
+objeto_recebido = { 
                    'RG_NUMERO': 4422428,
                    'RG_NOME': 'JOSE',
                    'RG_NASCIMENTO': '01/01/1990',
                    'RG_CPF': '012.345.678-00',
-                   'CPF_FRENTE': True,
                    'CPF_NUMERO': '012.345.678-00',
                    'CPF_NOME': 'JOSE',
                    'CPF_ANTIGO_FRENTE':  True,
                    'CPF_ANTIGO_NUMERO': True,
                    'CPF_ANTIGO_NOME': 'JOSE',
-                   'CNH_FRENTE': True,
                    'CNH_NUMERO': '123456789011',
                    'CNH_NOME': 'JOSE',
                    'RNE_NUMERO': '12345678901122445',
@@ -197,6 +256,7 @@ objeto_recebido = { 'RG_FRENTE': True,
                    'CERTIDAO_NOME': 'JOSE',
                    'CERTIDAO_GRAU' : 'bacharelado',
                    'CERTIDAO_DATA_COLACAO': '01/01/1990'
+                   'CERTIDAO_DATA_EMISSAO': '01/02/1990'
                    }
 
 

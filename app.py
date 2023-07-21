@@ -5,7 +5,7 @@ import numpy as np
 from flask import Flask, request
 from flask_restx import Resource, Api, reqparse
 from werkzeug.datastructures import FileStorage
-from utils import process_args, check_file
+from utils import process_args, check_file, create_output_object
 from predict import make_prediction
 
 
@@ -27,7 +27,7 @@ upload_parser.add_argument('documento',
     help='Arquivo que será predito pela inteligência artificial')
 
 
-upload_parser.add_argument('tipo', required=True, help='Tipo do documento: cpf, rg, cnh')
+upload_parser.add_argument('tipo', required=True, help='Tipo do documento: RG, CNG, CPF, DIPLOMA, CERTIFICADO')
 upload_parser.add_argument('objeto', required=True, help='objeto com as informações necessárias a serem validadas, conforme demonstrado no swagger')
 
 
@@ -168,6 +168,7 @@ class Upload(Resource):
         '''
 
         errors_message = []
+        output_object = create_output_object()
 
         try:
             headers = request.headers
@@ -177,8 +178,8 @@ class Upload(Resource):
             if token != TOKEN_LOCAL:
                 errors_message.append({'erro': 'Falha de autorização'}, 400)
                 return errors_message
-
-
+#
+#
             args = upload_parser.parse_args()
             #args = self.api.payload
             uploaded_file = args['documento']  # This is FileStorage instance
@@ -188,15 +189,16 @@ class Upload(Resource):
 
             imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             errors_message.append(check_file(uploaded_file, type_file))
+            output_object['ARQUIVO_CORROMPIDO'] = False
 
         except Exception as erro:
             print(erro)
-            errors_message.append({'erro': 'Arquivo não recebido'}, 400)
-            return errors_message
+            errors_message.append(['O arquivo está corrompido ou protegido por senha'])
+            output_object['ARQUIVO_CORROMPIDO'] = True
 
         # uploaded_file, type_file, objeto_json
-        message = process_args(uploaded_file.filename, imagem, type_file, json_object)
-        output_message = make_prediction(message)
+        message = process_args(uploaded_file.filename, imagem, str.upper(type_file).strip(), json_object)
+        output_message = make_prediction(message, output_object)
 
         if errors_message[0] != None:
             output_message['MENSAGENS'].append(errors_message)
