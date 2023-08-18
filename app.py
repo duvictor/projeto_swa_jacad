@@ -5,8 +5,10 @@ import numpy as np
 from flask import Flask, request
 from flask_restx import Resource, Api, reqparse
 from werkzeug.datastructures import FileStorage
-from utils import process_args, check_file, create_output_object
+from utils import process_args, check_file, create_output_object, converterPdf
 from predict import make_prediction
+from datetime import datetime
+import os
 
 
 TOKEN_LOCAL = '1234567890'
@@ -186,8 +188,24 @@ class Upload(Resource):
             type_file = args['tipo']
             object_parameter = args['objeto']
             json_object = json.loads(object_parameter)
-
-            imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+            imagem = None
+            if "image" in uploaded_file.content_type:
+                imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+            elif "pdf" in uploaded_file.content_type:
+                now = datetime.now()  # current date and time
+                nome_arquivo = now.strftime("%m_%d_%Y_%H_%M_%S")
+                nome_arquivo_final = "temporario/" + nome_arquivo + ".pdf"
+                uploaded_file.stream.seek(0)
+                uploaded_file.save(nome_arquivo_final)
+                convertido = converterPdf(nome_arquivo_final, "temporario/")
+                imagem_atual = convertido[0]['output_jpgfiles'][0]
+                # read the data from the file
+                with open(imagem_atual, 'rb') as infile:
+                    buf = infile.read()
+                    x = np.fromstring(buf, dtype='uint8')
+                    imagem = cv2.imdecode(x, cv2.IMREAD_UNCHANGED)
+                os.remove(nome_arquivo_final)
+                os.remove(imagem_atual)
             errors_message.append(check_file(uploaded_file, type_file))
             output_object['ARQUIVO_CORROMPIDO'] = False
 

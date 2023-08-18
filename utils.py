@@ -7,6 +7,8 @@ responsavel por manter padrões do sistema
 from dateutil.parser import parse
 from datetime import datetime
 from unidecode import unidecode
+from pdf2jpg import pdf2jpg
+import os
 
 def create_output_object():
     object = {
@@ -277,3 +279,21 @@ objeto_retorno = {
                     # Exclusivamente para a certidão/declaração de conclusão
                     'VALIDAR_CERTIDAO_EMISSAO' :  True
     }
+
+
+
+def converterPdf(inputpath, outputpath):
+    '''
+    responsavel por converter pdf para imagem
+    :param inputpath:
+    :param outputpath:
+    :return:
+    '''
+    print('*' * 30)
+    print('INICIANDO CONVERSAO')
+    print('*' * 30)
+    result = pdf2jpg.convert_pdf2jpg(inputpath, outputpath, pages="ALL")
+    print('*' * 30)
+    print('CONVERSAO FINALIZADA')
+    print('*' * 30)
+    return result
