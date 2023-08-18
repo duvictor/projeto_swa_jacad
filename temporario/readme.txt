@@ -1,0 +1,1 @@
+repositório responsável por armazenar arquivos temporários utilizados na conversão de pdf para imagem
