@@ -1,5 +1,7 @@
 Flask~=2.2.5
+pdf2jpg
 flask-restx
+pdf2jpg
 numpy~=1.21.6
 keras-retinanet
 Pillow~=9.5.0
@@ -10,4 +12,3 @@ opencv-python~=4.6.0.66
 tensorflow~=2.9.3
 keras-ocr
 unidecode
-pdf2jpg

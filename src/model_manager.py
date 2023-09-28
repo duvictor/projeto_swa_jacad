@@ -8,13 +8,13 @@ import datetime
 
 def load_model(message):
     if message['DOC_TYPE'] == 'RG':
-        return models.load_model('./models/modelo_RG.h5', backbone_name='resnet50')
+        return models.load_model('./models/versao3/modelo_RG.h5', backbone_name='resnet50')
 
     elif message['DOC_TYPE'] == 'CNH':
-        return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
+        return models.load_model('./models/versao3/modelo_CNH.h5', backbone_name='resnet50')
 
     elif message['DOC_TYPE'] == 'CPF':
-        return models.load_model('./models/modelo_CPF.h5', backbone_name='resnet50')
+        return models.load_model('./models/versao3/modelo_CPF.h5', backbone_name='resnet50')
 
     #elif message['DOC_TYPE'] == 'RNE':
     #    return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
@@ -23,10 +23,10 @@ def load_model(message):
     #    return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
     #
     elif message['DOC_TYPE'] == 'DIPLOMA':
-        return models.load_model('./models/modelo_Diploma.h5', backbone_name='resnet50')
+        return models.load_model('./models/versao3/modelo_Diploma.h5', backbone_name='resnet50')
 
     elif message['DOC_TYPE'] == 'CERTIFICADO':
-        return models.load_model('./models/modelo_Certidao.h5', backbone_name='resnet50')
+        return models.load_model('./models/versao3/modelo_Certidao.h5', backbone_name='resnet50')
 
     else:
         raise ValueError("Invalid Document Type Provided on Message")

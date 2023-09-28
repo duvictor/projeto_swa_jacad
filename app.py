@@ -67,6 +67,8 @@ class Upload(Resource):
         E responder o recebimento do arquivo
         simulando o comportamento da IA.
 
+        modelos cnh, diploma e rg = versão 2
+
         formato do objeto esperado no payload
         objeto_recebido = { 'RG_FRENTE': True,
                     'RG_VERSO': True,
@@ -103,7 +105,7 @@ class Upload(Resource):
             http://localhost:5000/api/upload/
 
             {
-    "file": ["C:/Bloomia/Cópia de RG_2.jpg"],
+    "file": ["C:/Bloomia/Cópia de RG_2.PDF"],
     "tipo": ["RG"],
     "objeto": [{
         "RG_FRENTE": true,
