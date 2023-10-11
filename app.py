@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask_restx import Resource, Api, reqparse
 from werkzeug.datastructures import FileStorage
 from utils import process_args, check_file, create_output_object, converterPdf
-from predict import make_prediction
+from predict import make_prediction, make_prediction_cnh
 from datetime import datetime
 import os
 
@@ -99,7 +99,7 @@ class Upload(Resource):
 
 
 
-        
+
         * autenticacao basic, usando o beaurus manda no header.
         * para testar usando postman:
             http://localhost:5000/api/upload/
@@ -182,10 +182,10 @@ class Upload(Resource):
             if token != TOKEN_LOCAL:
                 errors_message.append({'erro': 'Falha de autorização'}, 400)
                 return errors_message
-#
-#
+            #
+            #
             args = upload_parser.parse_args()
-            #args = self.api.payload
+            # args = self.api.payload
             uploaded_file = args['documento']  # This is FileStorage instance
             type_file = args['tipo']
             object_parameter = args['objeto']
@@ -226,6 +226,75 @@ class Upload(Resource):
         print(output_message)
 
         return output_message
+
+
+
+# @api.route('/uploadcnh/')
+# @api.expect(upload_parser)
+# class Uploadcnh(Resource):
+#     def post(self):
+#         '''
+#         responsavel por receber um arquivo no formato pdf
+#         do tipo de documento cnh digital.
+#         E responder o recebimento do arquivo
+#         com o resultado da IA.
+#         '''
+#
+#         errors_message = []
+#         output_object = create_output_object()
+#
+#         try:
+#             headers = request.headers
+#             bearer = headers.get('Authorization')  # Bearer YourTokenHere
+#             token = bearer.split()[0]  # YourTokenHere
+#
+#             if token != TOKEN_LOCAL:
+#                 errors_message.append({'erro': 'Falha de autorização'}, 400)
+#                 return errors_message
+# #
+# #
+#             args = upload_parser.parse_args()
+#             #args = self.api.payload
+#             uploaded_file = args['documento']  # This is FileStorage instance
+#             type_file = args['tipo']
+#             object_parameter = args['objeto']
+#             json_object = json.loads(object_parameter)
+#             imagem = None
+#             if "image" in uploaded_file.content_type:
+#                 imagem = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+#             elif "pdf" in uploaded_file.content_type:
+#                 now = datetime.now()  # current date and time
+#                 nome_arquivo = now.strftime("%m_%d_%Y_%H_%M_%S")
+#                 nome_arquivo_final = "temporario/" + nome_arquivo + ".pdf"
+#                 uploaded_file.stream.seek(0)
+#                 uploaded_file.save(nome_arquivo_final)
+#                 convertido = converterPdf(nome_arquivo_final, "temporario/")
+#                 imagem_atual = convertido[0]['output_jpgfiles'][0]
+#                 # read the data from the file
+#                 with open(imagem_atual, 'rb') as infile:
+#                     buf = infile.read()
+#                     x = np.fromstring(buf, dtype='uint8')
+#                     imagem = cv2.imdecode(x, cv2.IMREAD_UNCHANGED)
+#                 os.remove(nome_arquivo_final)
+#                 os.remove(imagem_atual)
+#             errors_message.append(check_file(uploaded_file, type_file))
+#             output_object['ARQUIVO_CORROMPIDO'] = False
+#
+#         except Exception as erro:
+#             print(erro)
+#             errors_message.append(['O arquivo está corrompido ou protegido por senha'])
+#             output_object['ARQUIVO_CORROMPIDO'] = True
+#
+#         # uploaded_file, type_file, objeto_json
+#         message = process_args(uploaded_file.filename, imagem, str.upper(type_file).strip(), json_object)
+#         output_message = make_prediction_cnh(message, output_object)
+#
+#         if errors_message[0] != None:
+#             output_message['MENSAGENS'].append(errors_message)
+#
+#         print(output_message)
+#
+#         return output_message
 
 
 if __name__ == '__main__':

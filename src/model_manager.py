@@ -4,7 +4,7 @@ import numpy as np
 from src.OCR import OCR
 from utils import calcular_intervalo_um_ano, processa_str, verificar_data_compra
 import datetime
-
+from src.cnh_manager import process_prediction_cnh_cpf, process_prediction_cnh_rg, process_prediction_cnh_numero, process_prediction_cnh_nome
 
 def load_model(message):
     if message['DOC_TYPE'] == 'RG':
@@ -115,10 +115,10 @@ def process_CNH_predicition(message, results, output_object):
     CNH_VERSO      = verify_object_existence(results[results['labels'] == 'CNH_VERSO'])
     CNH_NASCIMENTO = verify_object_existence(results[results['labels'] == 'CNH_NASCIMENTO'])
 
-    CNH_NUMERO = extract_data_from_prediction(message, results[results['labels'] == 'CNH_NUMERO'])
-    CNH_NOME   = extract_data_from_prediction(message, results[results['labels'] == 'CNH_NOME'])
-    RG_NUMERO  = extract_data_from_prediction(message, results[results['labels'] == 'RG_NUMERO'])
-    CPF_NUMERO = extract_data_from_prediction(message, results[results['labels'] == 'CPF_NUMERO'])
+    CNH_NUMERO = process_prediction_cnh_numero(message)
+    CNH_NOME   = process_prediction_cnh_nome(message)
+    RG_NUMERO  = process_prediction_cnh_rg(message)
+    CPF_NUMERO = process_prediction_cnh_cpf(message)
 
 
 

@@ -1,3 +1,4 @@
+from src.cnh_manager import process_prediction_cnh
 from src.model_manager import load_model, process_prediction
 from src.file_manager import check_file_integrity, read_image
 
@@ -209,14 +210,18 @@ message = {'DOC_TYPE': 'PASSAPORTE',
         boxes, scores, labels = model.predict_on_batch(img)
         boxes /= scale
 
-
-
         output_object, output_message = process_prediction(message, boxes, scores, labels, output_object)
         print(output_message)
 
         errors = process_output(message, output_message)
 
         output_object['MENSAGENS'] = errors
+
+    return output_object
+
+
+def make_prediction_cnh(message, output_object):
+    retorno_qualquer = process_prediction_cnh(message)
 
     return output_object
 
