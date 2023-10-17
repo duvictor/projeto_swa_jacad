@@ -1,7 +1,8 @@
 from src.cnh_manager import process_prediction_cnh
 from src.model_manager import load_model, process_prediction
 from src.file_manager import check_file_integrity, read_image
-
+#usado para verificar a similaridade de strings, solução paleativa até que o ocr esteja 100%
+from difflib import SequenceMatcher
 
 
 def process_output(message=None, output_message=None):
@@ -36,27 +37,27 @@ def process_output(message=None, output_message=None):
     elif message['DOC_TYPE'] == 'CNH':
 
         if output_message['CNH_NOME'] != '':
-            if not message['DOC_NUMBER']['CNH_NOME'] == output_message['CNH_NOME']:
+            if SequenceMatcher(None, output_message['CNH_NOME'], message['DOC_NUMBER']['CNH_NOME']).ratio() <= 0.30:
                 errors.append('Seu nome está diferente do documento.')
         else:
             errors.append('Seu nome não está legível no documento.')
 
         if output_message['CNH_NUMERO'] != '':
-            if not message['DOC_NUMBER']['CNH_NUMERO'] == output_message['CNH_NUMERO']:
+            if SequenceMatcher(None, output_message['CNH_NUMERO'], message['DOC_NUMBER']['CNH_NUMERO']).ratio() <= 0.30:
                 errors.append('O número da CNH é divergente do número informado no cadastro.')
         else:
             errors.append('O número de CNH não está legível.')
 
         if message['DOC_NUMBER']['RG_NUMERO'] != '':
             if output_message['RG_NUMERO'] != '':
-                if not message['DOC_NUMBER']['RG_NUMERO'] == output_message['RG_NUMERO']:
+                if SequenceMatcher(None, output_message['RG_NUMERO'], message['DOC_NUMBER']['RG_NUMERO']).ratio() <= 0.30:
                     errors.append('O número do RG é divergente do número informado no cadastro.')
             else:
                 errors.append('O usuário informou o número de RG junto com a CNH, porém o número de RG não está legível.')
 
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
             if output_message['CPF_NUMERO'] != '':
-                if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
+                if SequenceMatcher(None, output_message['CPF_NUMERO'], message['DOC_NUMBER']['CPF_NUMERO']).ratio() <= 0.30:
                     errors.append('O número do CPF é divergente do número informado no cadastro.')
             else:
                 errors.append('O usuário informou o número de CPF junto com a CNH, porém o número de CPF não está legível.')
@@ -64,13 +65,13 @@ def process_output(message=None, output_message=None):
     elif message['DOC_TYPE'] == 'CPF':
 
         if output_message['CPF_NOME'] != '':
-            if not message['DOC_NUMBER']['CPF_NOME'] == output_message['CPF_NOME']:
+            if SequenceMatcher(None, output_message['CPF_NOME'], message['DOC_NUMBER']['CPF_NOME']).ratio() <= 0.30:
                 errors.append('Seu nome está diferente do documento.')
         else:
             errors.append('Seu nome não está legível no documento.')
 
         if output_message['CPF_NUMERO'] != '':
-            if not message['DOC_NUMBER']['CPF_NUMERO'] == output_message['CPF_NUMERO']:
+            if SequenceMatcher(None, output_message['CPF_NUMERO'], message['DOC_NUMBER']['CPF_NUMERO']).ratio() <= 0.30:
                 errors.append('O número do CPF é divergente do número informado no cadastro.')
         else:
             errors.append('O número de CPF não está legível.')

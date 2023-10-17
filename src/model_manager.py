@@ -6,6 +6,9 @@ from utils import calcular_intervalo_um_ano, processa_str, verificar_data_compra
 import datetime
 from src.cnh_manager import process_prediction_cnh_cpf, process_prediction_cnh_rg, process_prediction_cnh_numero, process_prediction_cnh_nome
 
+#usado para verificar a similaridade de strings, solução paleativa até que o ocr esteja 100%
+from difflib import SequenceMatcher
+
 def load_model(message):
     if message['DOC_TYPE'] == 'RG':
         return models.load_model('./models/versao3/modelo_RG.h5', backbone_name='resnet50')
@@ -111,18 +114,20 @@ def process_CNH_predicition(message, results, output_object):
 
     validar_documento = True
 
-    CNH_FRENTE     = verify_object_existence(results[results['labels'] == 'CNH_FRENTE'])
-    CNH_VERSO      = verify_object_existence(results[results['labels'] == 'CNH_VERSO'])
-    CNH_NASCIMENTO = verify_object_existence(results[results['labels'] == 'CNH_NASCIMENTO'])
+    # CNH_FRENTE     = verify_object_existence(results[results['labels'] == 'CNH_FRENTE'])
+    # CNH_VERSO      = verify_object_existence(results[results['labels'] == 'CNH_VERSO'])
+    # CNH_NASCIMENTO = verify_object_existence(results[results['labels'] == 'CNH_NASCIMENTO'])
+# COMENTADO, POIS ESTAMOS USANDO CNH FIXA, MODELO PDF TIRADO DO APP
+    CNH_FRENTE = True
+    CNH_VERSO = True
+    CNH_NASCIMENTO = True
 
     CNH_NUMERO = process_prediction_cnh_numero(message)
     CNH_NOME   = process_prediction_cnh_nome(message)
     RG_NUMERO  = process_prediction_cnh_rg(message)
     CPF_NUMERO = process_prediction_cnh_cpf(message)
 
-
-
-    if CNH_NOME == message['DOC_NUMBER']['CNH_NOME']:
+    if SequenceMatcher(None, CNH_NOME, message['DOC_NUMBER']['CNH_NOME']).ratio() >= 0.30:
         output_object['VALIDAR_NOME'] = True
     else:
         output_object['VALIDAR_NOME'] = False
@@ -143,14 +148,18 @@ def process_CNH_predicition(message, results, output_object):
 
     if message['DOC_NUMBER']['RG_NUMERO'] != '':
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
-            if RG_NUMERO == message['DOC_NUMBER']['RG_NUMERO'] and CNH_NUMERO == message['DOC_NUMBER']['CNH_NUMERO'] and CPF_NUMERO == message['DOC_NUMBER']['CPF_NUMERO']:
+
+            if SequenceMatcher(None, RG_NUMERO, message['DOC_NUMBER']['RG_NUMERO']).ratio() >= 0.30 \
+                    and SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30 \
+                    and SequenceMatcher(None, CPF_NUMERO, message['DOC_NUMBER']['CPF_NUMERO']).ratio() >= 0.30:
                 output_object['VALIDAR_NUMERO'] = True
             else:
                 output_object['VALIDAR_NUMERO'] = False
                 validar_documento = False
         else:
             CPF_NUMERO = 'Número de CPF não informado na CNH.'
-            if RG_NUMERO == message['DOC_NUMBER']['RG_NUMERO'] and CNH_NUMERO == message['DOC_NUMBER']['CNH_NUMERO']:
+            if SequenceMatcher(None, RG_NUMERO, message['DOC_NUMBER']['RG_NUMERO']).ratio() >= 0.30 \
+                    and SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30:
                 output_object['VALIDAR_NUMERO'] = True
             else:
                 output_object['VALIDAR_NUMERO'] = False
@@ -158,7 +167,8 @@ def process_CNH_predicition(message, results, output_object):
     else:
         RG_NUMERO = 'Número de CPF não informado na CNH.'
         if message['DOC_NUMBER']['CPF_NUMERO'] != '':
-            if CNH_NUMERO == message['DOC_NUMBER']['CNH_NUMERO'] and CPF_NUMERO == message['DOC_NUMBER']['CPF_NUMERO']:
+            if SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30 \
+                    and SequenceMatcher(None, CPF_NUMERO, message['DOC_NUMBER']['CPF_NUMERO']).ratio() >= 0.30:
                 output_object['VALIDAR_NUMERO'] = True
             else:
                 output_object['VALIDAR_NUMERO'] = False
@@ -166,7 +176,7 @@ def process_CNH_predicition(message, results, output_object):
         else:
             RG_NUMERO = 'Número de CPF não informado na CNH.'
             CPF_NUMERO = 'Número de CPF não informado na CNH.'
-            if CNH_NUMERO == message['DOC_NUMBER']['CNH_NUMERO']:
+            if SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30:
                 output_object['VALIDAR_NUMERO'] = True
             else:
                 output_object['VALIDAR_NUMERO'] = False
