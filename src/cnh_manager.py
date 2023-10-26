@@ -93,7 +93,7 @@ def process_prediction_cnh(message):
     for text in prediction_nome[0]:
         nome += text[0] + " "
     print(nome)
-    message['DOC_NUMBER']['CNH_NOME'] = nome.upper()
+    message['DOC_NUMBER']['NOME'] = nome.upper()
 
 
     # Crop the image
@@ -104,7 +104,7 @@ def process_prediction_cnh(message):
     for text in prediction_cpf[0]:
         cpf += text[0] + " "
     print(cpf)
-    message['DOC_NUMBER']['CNH_CPF'] = cpf.replace(" ", "")
+    message['DOC_NUMBER']['CPF'] = cpf.replace(" ", "")
 
     # Crop the image
     cropped_numero = image[top_left_cnh_numero[1]:bottom_right_cnh_numero[1], top_left_cnh_numero[0]:bottom_right_cnh_numero[0]]
@@ -114,7 +114,7 @@ def process_prediction_cnh(message):
     for text in prediction_cnh_numero[0]:
         cnh_numero += text[0]
     print(cnh_numero)
-    message['DOC_NUMBER']['CNH_NUMERO'] = cnh_numero.replace(" ", "")
+    message['DOC_NUMBER']['CNH'] = cnh_numero.replace(" ", "")
 
 
 
@@ -128,7 +128,7 @@ def process_prediction_cnh(message):
         rg_numero += text[0]
         break
     print(rg_numero)
-    message['DOC_NUMBER']['RG_NUMERO'] = rg_numero.replace(" ", "")
+    message['DOC_NUMBER']['RG'] = rg_numero.replace(" ", "")
 
 
     return message

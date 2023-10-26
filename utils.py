@@ -132,19 +132,19 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE':   'RG',
                    'FILE': file_name,
                    'IMAGE':  uploaded_file,
-                   'DOC_NUMBER': {'RG_NOME': processa_str(objeto_json['RG_NOME']),
-                                  'RG_NUMERO': processa_str(objeto_json['RG_NUMERO']),
-                                  'RG_CPF': processa_str(objeto_json['RG_CPF']),
+                   'DOC_NUMBER': {'NOME': processa_str(objeto_json['NOME']),
+                                  'RG': processa_str(objeto_json['RG']),
+                                  'CPF': processa_str(objeto_json['CPF']),
                                  }
                    }
     elif type_file == 'CNH':
         message = {'DOC_TYPE': 'CNH',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'CNH_NOME': processa_str(objeto_json['CNH_NOME']),
-                                  'CNH_NUMERO': processa_str(objeto_json['CNH_NUMERO']),
-                                  'RG_NUMERO': processa_str(objeto_json['RG_NUMERO']),
-                                  'CPF_NUMERO': processa_str(objeto_json['CPF_NUMERO']),
+                   'DOC_NUMBER': {'NOME': processa_str(objeto_json['NOME']),
+                                  'CNH': processa_str(objeto_json['CNH']),
+                                  'RG': processa_str(objeto_json['RG']),
+                                  'CPF': processa_str(objeto_json['CPF']),
                                   }
                    }
 
@@ -152,8 +152,8 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE': 'CPF',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'CPF_NOME':   processa_str(objeto_json['CPF_NOME']),
-                                  'CPF_NUMERO': processa_str(objeto_json['CPF_NUMERO'])
+                   'DOC_NUMBER': {'NOME':   processa_str(objeto_json['NOME']),
+                                  'CPF': processa_str(objeto_json['CPF'])
                                   }
                    }
 
@@ -161,8 +161,8 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE': 'RNE',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'RNE_NUMERO': processa_str(objeto_json['RNE_NUMERO']),
-                                  'RNE_NOME':    processa_str(objeto_json['RNE_NOME']),
+                   'DOC_NUMBER': {'RNE': processa_str(objeto_json['RNE']),
+                                  'NOME':    processa_str(objeto_json['NOME']),
 
                                   }
                    }
@@ -171,8 +171,8 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
         message = {'DOC_TYPE': 'PASSAPORTE',
                    'FILE': file_name,
                    'IMAGE': uploaded_file,
-                   'DOC_NUMBER': {'PASSAPORTE_NOME':   processa_str(objeto_json['PASSAPORTE_NOME']),
-                                  'PASSAPORTE_NUMERO': processa_str(objeto_json['PASSAPORTE_NUMERO']),
+                   'DOC_NUMBER': {'NOME':   processa_str(objeto_json['NOME']),
+                                  'PASSAPORTE': processa_str(objeto_json['PASSAPORTE']),
 
                                   }
                    }
@@ -222,23 +222,18 @@ tipos_documentos ={'RG', 'CNH,', 'PASSAPORTE', 'RNE', 'DIPLOMA', 'CERTIDAO'}
 
 objeto_recebido = { 'RG_FRENTE': True,
                     'RG_VERSO': True,
-                    'RG_NUMERO': 4422428,
-                    'RG_NOME': 'JOSE',
-                    'RG_NASCIMENTO': '01/01/1990',
-                    'RG_CPF': '012.345.678-00',
+                    'RG': 4422428,
+                    'NOME': 'JOSE',
+                    'DATA_NASCIMENTO': '01/01/1990',
                     'CPF_FRENTE': True,
-                    'CPF_NUMERO': '012.345.678-00',
-                    'CPF_NOME': 'JOSE',
+                    'CPF': '012.345.678-00',
                     'CPF_ANTIGO_FRENTE':  True,
                     'CPF_ANTIGO_NUMERO': True,
                     'CPF_ANTIGO_NOME': 'JOSE',
                     'CNH_FRENTE': True,
-                    'CNH_NUMERO': '123456789011',
-                    'CNH_NOME': 'JOSE',
-                    'RNE_NUMERO': '12345678901122445',
-                    'RNE_NOME': 'JOSE',
-                    'PASSAPORTE_NOME': 'JOSE',
-                    'PASSAPORTE_NUMERO': '123456789011',
+                    'CNH': '123456789011',
+                    'RNE': '12345678901122445',
+                    'PASSAPORTE': '123456789011',
                     'DIPLOMA_NOME': 'JOSE',
                     'DIPLOMA_GRAU' : 'bacharelado',
                     'DIPLOMA_DATA_COLACAO': '01/01/1990',

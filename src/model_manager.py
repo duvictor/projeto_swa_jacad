@@ -58,20 +58,20 @@ def verify_object_existence(dataframe):
         return False
 
 def process_RG_predicition(message, results, output_object):
-    classes = ['RG_FRENTE', 'RG_VERSO', 'RG_NUMERO', 'RG_NOME', 'RG_NASCIMENTO', 'RG_CPF']
+    classes = ['RG_FRENTE', 'RG_VERSO', 'RG', 'NOME', 'DATA_NASCIMENTO', 'CPF']
     results['labels'] = results.apply(lambda row: classes[int(row['labels'])],axis = 1)
 
     validar_documento = True
 
     RG_FRENTE     = verify_object_existence(results[results['labels'] == 'RG_FRENTE'])
     RG_VERSO      = verify_object_existence(results[results['labels'] == 'RG_VERSO'])
-    RG_NASCIMENTO = verify_object_existence(results[results['labels'] == 'RG_NASCIMENTO'])
+    DATA_NASCIMENTO = verify_object_existence(results[results['labels'] == 'RG_NASCIMENTO'])
 
-    RG_NOME   = extract_data_from_prediction(message, results[results['labels'] == 'RG_NOME'])
-    RG_NUMERO = extract_data_from_prediction(message, results[results['labels'] == 'RG_NUMERO'])
-    RG_CPF    = extract_data_from_prediction(message, results[results['labels'] == 'RG_CPF'])
+    NOME   = extract_data_from_prediction(message, results[results['labels'] == 'NOME'])
+    RG = extract_data_from_prediction(message, results[results['labels'] == 'RG'])
+    CPF    = extract_data_from_prediction(message, results[results['labels'] == 'CPF'])
 
-    if RG_NOME == message['DOC_NUMBER']['RG_NOME']:
+    if NOME == message['DOC_NUMBER']['NOME']:
         output_object['VALIDAR_NOME'] = True
     else:
         output_object['VALIDAR_NOME'] = False
@@ -83,33 +83,34 @@ def process_RG_predicition(message, results, output_object):
         output_object['VALIDAR_FRENTE_VERSO'] = False
         validar_documento = False
 
-    if RG_NASCIMENTO:
+    if DATA_NASCIMENTO:
         output_object['VALIDAR_DATA_NASCIMENTO'] = True
     else:
         output_object['VALIDAR_DATA_NASCIMENTO'] = False
         validar_documento = False
 
-    if message['DOC_NUMBER']['RG_CPF'] != '':
-        if RG_NUMERO == message['DOC_NUMBER']['RG_NUMERO'] and RG_CPF == message['DOC_NUMBER']['RG_CPF']:
-            output_object['VALIDAR_NUMERO'] = True
+    if message['DOC_NUMBER']['CPF'] != '':
+        if CPF == message['DOC_NUMBER']['CPF']:
+            output_object['VALIDAR_CPF'] = True
         else:
-            output_object['VALIDAR_NUMERO'] = False
+            output_object['VALIDAR_CPF'] = False
             validar_documento = False
-    else:
-        RG_CPF = 'Número de CPF não informado no RG.'
-        if RG_NUMERO == message['DOC_NUMBER']['RG_NUMERO']:
-            output_object['VALIDAR_NUMERO'] = True
+
+    if message['DOC_NUMBER']['RG'] != '':
+        if RG == message['DOC_NUMBER']['RG']:
+            output_object['VALIDAR_RG'] = True
         else:
-            output_object['VALIDAR_NUMERO'] = False
+            output_object['VALIDAR_RG'] = False
             validar_documento = False
+
 
     output_object['VALIDAR_DOCUMENTO'] = validar_documento
 
-    return output_object, {'RG_FRENTE':RG_FRENTE, 'RG_VERSO':RG_VERSO, 'RG_NASCIMENTO': RG_NASCIMENTO, 'RG_NOME':RG_NOME, 'RG_NUMERO': RG_NUMERO, 'RG_CPF': RG_CPF}
+    return output_object, {'RG_FRENTE':RG_FRENTE, 'RG_VERSO':RG_VERSO, 'DATA_NASCIMENTO': DATA_NASCIMENTO, 'NOME':NOME, 'RG': RG, 'CPF': CPF}
 
 
 def process_CNH_predicition(message, results, output_object):
-    classes = ['CNH_FRENTE', 'CNH_VERSO', 'CNH_NUMERO', 'CNH_NOME', 'RG_NUMERO', 'CPF_NUMERO', 'CNH_NASCIMENTO']
+    classes = ['CNH_FRENTE', 'CNH_VERSO', 'CNH', 'NOME', 'RG', 'CPF', 'DATA_NASCIMENTO']
     results['labels'] = results.apply(lambda row: classes[int(row['labels'])], axis=1)
 
     validar_documento = True
@@ -120,14 +121,14 @@ def process_CNH_predicition(message, results, output_object):
 # COMENTADO, POIS ESTAMOS USANDO CNH FIXA, MODELO PDF TIRADO DO APP
     CNH_FRENTE = True
     CNH_VERSO = True
-    CNH_NASCIMENTO = True
+    DATA_NASCIMENTO = True
 
-    CNH_NUMERO = process_prediction_cnh_numero(message)
-    CNH_NOME   = process_prediction_cnh_nome(message)
-    RG_NUMERO  = process_prediction_cnh_rg(message)
-    CPF_NUMERO = process_prediction_cnh_cpf(message)
+    CNH = process_prediction_cnh_numero(message)
+    NOME   = process_prediction_cnh_nome(message)
+    RG  = process_prediction_cnh_rg(message)
+    CPF = process_prediction_cnh_cpf(message)
 
-    if SequenceMatcher(None, CNH_NOME, message['DOC_NUMBER']['CNH_NOME']).ratio() >= 0.30:
+    if SequenceMatcher(None, NOME, message['DOC_NUMBER']['NOME']).ratio() >= 0.30:
         output_object['VALIDAR_NOME'] = True
     else:
         output_object['VALIDAR_NOME'] = False
@@ -139,78 +140,63 @@ def process_CNH_predicition(message, results, output_object):
         output_object['VALIDAR_FRENTE_VERSO'] = False
         validar_documento = False
 
-    if CNH_NASCIMENTO:
+    if DATA_NASCIMENTO:
        output_object['VALIDAR_DATA_NASCIMENTO'] = True
     else:
         output_object['VALIDAR_DATA_NASCIMENTO'] = False
         validar_documento = False
 
-
-    if message['DOC_NUMBER']['RG_NUMERO'] != '':
-        if message['DOC_NUMBER']['CPF_NUMERO'] != '':
-
-            if SequenceMatcher(None, RG_NUMERO, message['DOC_NUMBER']['RG_NUMERO']).ratio() >= 0.30 \
-                    and SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30 \
-                    and SequenceMatcher(None, CPF_NUMERO, message['DOC_NUMBER']['CPF_NUMERO']).ratio() >= 0.30:
-                output_object['VALIDAR_NUMERO'] = True
-            else:
-                output_object['VALIDAR_NUMERO'] = False
-                validar_documento = False
-        else:
-            CPF_NUMERO = 'Número de CPF não informado na CNH.'
-            if SequenceMatcher(None, RG_NUMERO, message['DOC_NUMBER']['RG_NUMERO']).ratio() >= 0.30 \
-                    and SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30:
-                output_object['VALIDAR_NUMERO'] = True
-            else:
-                output_object['VALIDAR_NUMERO'] = False
-                validar_documento = False
+    if SequenceMatcher(None, CPF, message['DOC_NUMBER']['CPF']).ratio() >= 0.30:
+        output_object['VALIDAR_CPF'] = True
     else:
-        RG_NUMERO = 'Número de CPF não informado na CNH.'
-        if message['DOC_NUMBER']['CPF_NUMERO'] != '':
-            if SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30 \
-                    and SequenceMatcher(None, CPF_NUMERO, message['DOC_NUMBER']['CPF_NUMERO']).ratio() >= 0.30:
-                output_object['VALIDAR_NUMERO'] = True
-            else:
-                output_object['VALIDAR_NUMERO'] = False
-                validar_documento = False
-        else:
-            RG_NUMERO = 'Número de CPF não informado na CNH.'
-            CPF_NUMERO = 'Número de CPF não informado na CNH.'
-            if SequenceMatcher(None, CNH_NUMERO, message['DOC_NUMBER']['CNH_NUMERO']).ratio() >= 0.30:
-                output_object['VALIDAR_NUMERO'] = True
-            else:
-                output_object['VALIDAR_NUMERO'] = False
-                validar_documento = False
+        output_object['VALIDAR_CPF'] = False
+
+    if SequenceMatcher(None, RG, message['DOC_NUMBER']['RG']).ratio() >= 0.30:
+        output_object['VALIDAR_RG'] = True
+    else:
+        output_object['VALIDAR_RG'] = False
+
+    if SequenceMatcher(None, NOME, message['DOC_NUMBER']['NOME']).ratio() >= 0.30:
+        output_object['VALIDAR_NOME'] = True
+    else:
+        output_object['VALIDAR_NOME'] = False
+
+    if SequenceMatcher(None, CNH, message['DOC_NUMBER']['CNH']).ratio() >= 0.30:
+        output_object['VALIDAR_CNH'] = True
+    else:
+        output_object['VALIDAR_CNH'] = False
+
+
 
     output_object['VALIDAR_DOCUMENTO'] = validar_documento
 
-    return output_object, {'CNH_FRENTE':CNH_FRENTE, 'CNH_VERSO':CNH_VERSO, 'CNH_NUMERO': CNH_NUMERO, 'CNH_NOME':CNH_NOME, 'RG_NUMERO': RG_NUMERO, 'CPF_NUMERO': CPF_NUMERO, 'CNH_NASCIMENTO': CNH_NASCIMENTO}
+    return output_object, {'CNH_FRENTE':CNH_FRENTE, 'CNH_VERSO':CNH_VERSO, 'CNH': CNH, 'NOME':NOME, 'RG': RG, 'CPF': CPF, 'DATA_NASCIMENTO': DATA_NASCIMENTO}
 
 
 def process_CPF_predicition(message, results, output_object):
-    classes = ['CPF_FRENTE', 'CPF_NUMERO', 'CPF_NOME', 'CPF_ANTIGO_FRENTE', 'CPF_ANTIGO_NUMERO', 'CPF_ANTIGO_NOME']
+    classes = ['CPF_FRENTE', 'CPF', 'NOME', 'CPF_ANTIGO_FRENTE', 'CPF_ANTIGO_NUMERO', 'CPF_ANTIGO_NOME']
     results['labels'] = results.apply(lambda row: classes[int(row['labels'])], axis=1)
 
     valaildar_documento = True
 
     CPF_FRENTE = verify_object_existence(results[results['labels'] == 'CPF_FRENTE'])
-    CPF_NUMERO = extract_data_from_prediction(message, results[results['labels'] == 'CPF_NUMERO'])
-    CPF_NOME = extract_data_from_prediction(message, results[results['labels'] == 'CPF_NOME'])
+    CPF = extract_data_from_prediction(message, results[results['labels'] == 'CPF'])
+    NOME = extract_data_from_prediction(message, results[results['labels'] == 'NOME'])
 
     CPF_ANTIGO_FRENTE = verify_object_existence(results[results['labels'] == 'CPF_ANTIGO_FRENTE'])
     CPF_ANTIGO_NUMERO = extract_data_from_prediction(message, results[results['labels'] == 'CPF_ANTIGO_NUMERO'])
     CPF_ANTIGO_NOME = extract_data_from_prediction(message, results[results['labels'] == 'CPF_ANTIGO_NOME'])
 
-    if CPF_NOME==message['DOC_NUMBER']['CPF_NOME'] or CPF_ANTIGO_NOME==message['DOC_NUMBER']['CPF_NOME']:
+    if NOME==message['DOC_NUMBER']['NOME'] or CPF_ANTIGO_NOME==message['DOC_NUMBER']['NOME']:
         output_object['VALIDAR_NOME'] = True
     else:
         output_object['VALIDAR_NOME'] = False
         valaildar_documento = False
 
-    if CPF_NUMERO == message['DOC_NUMBER']['CPF_NUMERO'] or CPF_ANTIGO_NUMERO == message['DOC_NUMBER']['CPF_NUMERO']:
-        output_object['VALIDAR_NUMERO'] = True
+    if CPF == message['DOC_NUMBER']['CPF'] or CPF_ANTIGO_NUMERO == message['DOC_NUMBER']['CPF']:
+        output_object['VALIDAR_CPF'] = True
     else:
-        output_object['VALIDAR_NUMERO'] = False
+        output_object['VALIDAR_CPF'] = False
         valaildar_documento = False
 
     if CPF_FRENTE == True or CPF_ANTIGO_FRENTE == True:
@@ -221,7 +207,7 @@ def process_CPF_predicition(message, results, output_object):
 
     output_object['VALIDAR_DOCUMENTO'] = valaildar_documento
 
-    return output_object, {'CPF_FRENTE':CPF_FRENTE, 'CPF_NUMERO':CPF_NUMERO, 'CPF_NOME': CPF_NOME, 'CPF_ANTIGO_FRENTE':CPF_ANTIGO_FRENTE, 'CPF_ANTIGO_NUMERO': CPF_ANTIGO_NUMERO, 'CPF_ANTIGO_NOME': CPF_ANTIGO_NOME}
+    return output_object, {'CPF_FRENTE':CPF_FRENTE, 'CPF':CPF, 'NOME': NOME, 'CPF_ANTIGO_FRENTE':CPF_ANTIGO_FRENTE, 'CPF_ANTIGO_NUMERO': CPF_ANTIGO_NUMERO, 'CPF_ANTIGO_NOME': CPF_ANTIGO_NOME}
 
 
 #def process_RNE_predicition(message, results, output_object):

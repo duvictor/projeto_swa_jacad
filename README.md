@@ -36,7 +36,7 @@ na máquina de dev
 
 na máquina de prod
 	sudo docker ps
-	sudo docker container stop 1531e71e6ca4   
+	sudo docker container stop 63c452d45723    
 	sudo docker rm python_project_mock_jacad
 	sudo docker pull duvictorsc/python_project_mock_jacad:v1-release
 	sudo docker run --name python_project_mock_jacad -p 5000:5000 -d duvictorsc/python_project_mock_jacad:v1-release
