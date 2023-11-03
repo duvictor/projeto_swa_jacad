@@ -5,6 +5,7 @@ from src.OCR import OCR
 from utils import calcular_intervalo_um_ano, processa_str, verificar_data_compra
 import datetime
 from src.cnh_manager import process_prediction_cnh_cpf, process_prediction_cnh_rg, process_prediction_cnh_numero, process_prediction_cnh_nome
+from src.upload_s3 import publicar_json
 
 #usado para verificar a similaridade de strings, solução paleativa até que o ocr esteja 100%
 from difflib import SequenceMatcher
@@ -123,10 +124,17 @@ def process_CNH_predicition(message, results, output_object):
     CNH_VERSO = True
     DATA_NASCIMENTO = True
 
-    CNH = process_prediction_cnh_numero(message)
-    NOME   = process_prediction_cnh_nome(message)
-    RG  = process_prediction_cnh_rg(message)
-    CPF = process_prediction_cnh_cpf(message)
+    CNH, cropped_cnh = process_prediction_cnh_numero(message)
+    NOME, cropped_nome = process_prediction_cnh_nome(message)
+    RG, cropped_rg = process_prediction_cnh_rg(message)
+    CPF, cropped_cpf = process_prediction_cnh_cpf(message)
+
+    message['cropped_cnh'] = cropped_cnh
+    message['cropped_nome'] = cropped_nome
+    message['cropped_rg'] = cropped_rg
+    message['cropped_cpf'] = cropped_cpf
+
+    publicar_json(message)
 
     if SequenceMatcher(None, NOME, message['DOC_NUMBER']['NOME']).ratio() >= 0.30:
         output_object['VALIDAR_NOME'] = True

@@ -30,7 +30,7 @@ def process_prediction_cnh_nome(message):
     for text in prediction_nome[0]:
         nome += text[0] + " "
     print(nome)
-    return processa_str(nome[0:-1])
+    return processa_str(nome[0:-1]), cropped_nome
 
 
 
@@ -46,7 +46,7 @@ def process_prediction_cnh_cpf(message):
     for text in prediction_cpf[0]:
         cpf += text[0] + " "
     print(cpf)
-    return processa_str(cpf.replace(" ", ""))
+    return processa_str(cpf.replace(" ", "")), cropped_cpf
 
 
 
@@ -61,7 +61,7 @@ def process_prediction_cnh_numero(message):
     for text in prediction_cnh_numero[0]:
         cnh_numero += text[0]
     print(cnh_numero)
-    return processa_str(cnh_numero.replace(" ", ""))
+    return processa_str(cnh_numero.replace(" ", "")), cropped_numero
 
 
 
@@ -79,7 +79,7 @@ def process_prediction_cnh_rg(message):
         rg_numero += text[0]
         break
     print(rg_numero)
-    return processa_str(rg_numero.replace(" ", ""))
+    return processa_str(rg_numero.replace(" ", "")), cropped_numero
 
 
 def process_prediction_cnh(message):
