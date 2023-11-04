@@ -129,10 +129,10 @@ def process_CNH_predicition(message, results, output_object):
     RG, cropped_rg = process_prediction_cnh_rg(message)
     CPF, cropped_cpf = process_prediction_cnh_cpf(message)
 
-    message['cropped_cnh'] = cropped_cnh
-    message['cropped_nome'] = cropped_nome
-    message['cropped_rg'] = cropped_rg
-    message['cropped_cpf'] = cropped_cpf
+    message['cropped_cnh'] = cropped_cnh.tostring()
+    message['cropped_nome'] = cropped_nome.tostring()
+    message['cropped_rg'] = cropped_rg.tostring()
+    message['cropped_cpf'] = cropped_cpf.tostring()
 
     publicar_json(message)
 

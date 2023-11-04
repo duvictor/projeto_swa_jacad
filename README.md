@@ -36,7 +36,7 @@ na máquina de dev
 
 na máquina de prod
 	sudo docker ps
-	sudo docker container stop 63c452d45723    
+	sudo docker container stop 45a4a8044a71    
 	sudo docker rm python_project_mock_jacad
 	sudo docker pull duvictorsc/python_project_mock_jacad:v1-release
 	sudo docker run --name python_project_mock_jacad -p 5000:5000 -d duvictorsc/python_project_mock_jacad:v1-release
@@ -50,3 +50,18 @@ http://descomplica-ocr.jacad.com.br:5000
 Link para os .h5
 criar pasta models e fazer download em:
 https://drive.google.com/drive/folders/1D8Hhl1RglhsqWzgE810duKcjlHBaFpMf?usp=share_link
+
+
+
+
+
+
+
+
+
+
+
+#04/11/2023
+
+exemplo de tabela para geração de dashboar para controle de utilização
+![img.png](img.png)
