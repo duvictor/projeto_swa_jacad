@@ -6,6 +6,8 @@ from utils import calcular_intervalo_um_ano, processa_str, verificar_data_compra
 import datetime
 from src.cnh_manager import process_prediction_cnh_cpf, process_prediction_cnh_rg, process_prediction_cnh_numero, process_prediction_cnh_nome
 from src.upload_s3 import publicar_json
+from src.persistencia import inserir_resultado_ia
+import uuid
 
 #usado para verificar a similaridade de strings, solução paleativa até que o ocr esteja 100%
 from difflib import SequenceMatcher
@@ -119,7 +121,7 @@ def process_CNH_predicition(message, results, output_object):
     # CNH_FRENTE     = verify_object_existence(results[results['labels'] == 'CNH_FRENTE'])
     # CNH_VERSO      = verify_object_existence(results[results['labels'] == 'CNH_VERSO'])
     # CNH_NASCIMENTO = verify_object_existence(results[results['labels'] == 'CNH_NASCIMENTO'])
-# COMENTADO, POIS ESTAMOS USANDO CNH FIXA, MODELO PDF TIRADO DO APP
+    # COMENTADO, POIS ESTAMOS USANDO CNH FIXA, MODELO PDF TIRADO DO APP
     CNH_FRENTE = True
     CNH_VERSO = True
     DATA_NASCIMENTO = True
@@ -134,9 +136,23 @@ def process_CNH_predicition(message, results, output_object):
     message['cropped_rg'] = cropped_rg.tostring()
     message['cropped_cpf'] = cropped_cpf.tostring()
 
-    publicar_json(message)
+    message['predict_cnh'] = CNH
+    message['predict_nome'] = NOME
+    message['predict_rg'] = RG
+    message['predict_cpf'] = CPF
 
-    if SequenceMatcher(None, NOME, message['DOC_NUMBER']['NOME']).ratio() >= 0.30:
+    uuid_s3 = str(uuid.uuid4())
+
+    # criando json com crop e valores corretos e enviando os crops com os valores corretos para s3
+    publicar_json(message, uuid_s3)
+
+
+    metrica_nome = SequenceMatcher(None, NOME, message['DOC_NUMBER']['NOME']).ratio()
+
+    # gravando no banco relacional a predição do nome da cnh
+    inserir_resultado_ia(message['DOC_TYPE'], message['DOC_NUMBER']['NOME'], NOME, 'NOME', message['FILE'], uuid_s3, metrica_nome)
+
+    if metrica_nome >= 0.30:
         output_object['VALIDAR_NOME'] = True
     else:
         output_object['VALIDAR_NOME'] = False
@@ -154,22 +170,27 @@ def process_CNH_predicition(message, results, output_object):
         output_object['VALIDAR_DATA_NASCIMENTO'] = False
         validar_documento = False
 
-    if SequenceMatcher(None, CPF, message['DOC_NUMBER']['CPF']).ratio() >= 0.30:
+    metrica_cpf = SequenceMatcher(None, CPF, message['DOC_NUMBER']['CPF']).ratio()
+    inserir_resultado_ia(message['DOC_TYPE'], message['DOC_NUMBER']['CPF'], CPF, 'CPF', message['FILE'], uuid_s3, metrica_cpf)
+
+    if metrica_cpf >= 0.30:
         output_object['VALIDAR_CPF'] = True
     else:
         output_object['VALIDAR_CPF'] = False
 
-    if SequenceMatcher(None, RG, message['DOC_NUMBER']['RG']).ratio() >= 0.30:
+
+    metrica_rg = SequenceMatcher(None, RG, message['DOC_NUMBER']['RG']).ratio()
+    inserir_resultado_ia(message['DOC_TYPE'], message['DOC_NUMBER']['RG'], RG, 'RG', message['FILE'], uuid_s3, metrica_rg)
+    if metrica_rg >= 0.30:
         output_object['VALIDAR_RG'] = True
     else:
         output_object['VALIDAR_RG'] = False
 
-    if SequenceMatcher(None, NOME, message['DOC_NUMBER']['NOME']).ratio() >= 0.30:
-        output_object['VALIDAR_NOME'] = True
-    else:
-        output_object['VALIDAR_NOME'] = False
 
-    if SequenceMatcher(None, CNH, message['DOC_NUMBER']['CNH']).ratio() >= 0.30:
+    metrica_cnh = SequenceMatcher(None, CNH, message['DOC_NUMBER']['CNH']).ratio()
+    inserir_resultado_ia(message['DOC_TYPE'], message['DOC_NUMBER']['CNH'], CNH, 'CNH', message['FILE'], uuid_s3, metrica_cnh)
+
+    if  metrica_cnh >= 0.30:
         output_object['VALIDAR_CNH'] = True
     else:
         output_object['VALIDAR_CNH'] = False

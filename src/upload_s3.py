@@ -5,7 +5,6 @@ responsavel por enviar dados para o bucket s3
 Por exemplo, o AWS Lambda permite um milhão de solicitações gratuitas e até 3,2 milhões de segundos de tempo de computação por mês. O Amazon DynamoDB libera 25 GB de armazenamento gratuito por mês.
 '''
 import json
-import uuid
 import boto3
 
 
@@ -21,7 +20,7 @@ BUCKET_NAME = 'descomplica-data-integration'
 
 
 
-def publicar_json(json_dict):
+def publicar_json(json_dict, uuid_s3):
     s3_resource = boto3.resource(
         's3',
         region_name=REGION,
@@ -30,7 +29,7 @@ def publicar_json(json_dict):
     )
     data_string = json.dumps(json_dict, indent=2, default=str)
     s3_resource.Bucket(BUCKET_NAME).put_object(
-        Key=str(uuid.uuid4()) + '.json',
+        Key=uuid_s3 + '.json',
         Body=data_string
     )
 
