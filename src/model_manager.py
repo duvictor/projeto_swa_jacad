@@ -1,64 +1,18 @@
-from keras_retinanet import models
+
 import pandas as pd
 import numpy as np
-from src.OCR import OCR
-from utils import calcular_intervalo_um_ano, processa_str, verificar_data_compra
 import datetime
 from src.cnh_manager import process_prediction_cnh_cpf, process_prediction_cnh_rg, process_prediction_cnh_numero, process_prediction_cnh_nome
 from src.upload_s3 import publicar_json
 from src.persistencia import inserir_resultado_ia
 import uuid
+from src.RG_utils import get_text
+from src.model_utils import verify_object_existence, extract_data_from_prediction
+from utils import verificar_data_compra, calcular_intervalo_um_ano
 
 #usado para verificar a similaridade de strings, solução paleativa até que o ocr esteja 100%
 from difflib import SequenceMatcher
 
-def load_model(message):
-    if message['DOC_TYPE'] == 'RG':
-        return models.load_model('./models/versao3/modelo_RG.h5', backbone_name='resnet50')
-
-    elif message['DOC_TYPE'] == 'CNH':
-        return models.load_model('./models/versao3/modelo_CNH.h5', backbone_name='resnet50')
-
-    elif message['DOC_TYPE'] == 'CPF':
-        return models.load_model('./models/versao3/modelo_CPF.h5', backbone_name='resnet50')
-
-    #elif message['DOC_TYPE'] == 'RNE':
-    #    return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
-    #
-    #elif message['DOC_TYPE'] == 'PASSAPORTE':
-    #    return models.load_model('./models/modelo_CNH.h5', backbone_name='resnet50')
-    #
-    elif message['DOC_TYPE'] == 'DIPLOMA':
-        return models.load_model('./models/versao3/modelo_Diploma.h5', backbone_name='resnet50')
-
-    elif message['DOC_TYPE'] == 'CERTIFICADO':
-        return models.load_model('./models/versao3/modelo_Certidao.h5', backbone_name='resnet50')
-
-    else:
-        raise ValueError("Invalid Document Type Provided on Message")
-
-
-def extract_data_from_prediction(message, dataframe):
-    if dataframe['scores'].max() > 0.1:  #Deixei com 0.1 apenas para ter alguma detecção, o ideal é 0.5
-        for i, row in dataframe[dataframe['scores'] == dataframe['scores'].max()].iterrows():
-            if not dataframe['xmin'].empty:
-                try:
-                    xmin, ymin, xmax, ymax = [row['xmin'], row['ymin'], row['xmax'], row['ymax']]
-                    DATA = processa_str(OCR(message, xmin,ymin,xmax,ymax))
-                    return DATA
-                except:
-                    return ''
-            else:
-                return ''
-
-    else:
-        return ''
-
-def verify_object_existence(dataframe):
-    if dataframe['scores'].max() > 0.5:
-        return True
-    else:
-        return False
 
 def process_RG_predicition(message, results, output_object):
     classes = ['RG_FRENTE', 'RG_VERSO', 'RG', 'NOME', 'DATA_NASCIMENTO', 'CPF']
@@ -68,49 +22,57 @@ def process_RG_predicition(message, results, output_object):
 
     RG_FRENTE     = verify_object_existence(results[results['labels'] == 'RG_FRENTE'])
     RG_VERSO      = verify_object_existence(results[results['labels'] == 'RG_VERSO'])
-    DATA_NASCIMENTO = verify_object_existence(results[results['labels'] == 'RG_NASCIMENTO'])
+    #DATA_NASCIMENTO = verify_object_existence(results[results['labels'] == 'RG_NASCIMENTO'])
 
-    NOME   = extract_data_from_prediction(message, results[results['labels'] == 'NOME'])
-    RG = extract_data_from_prediction(message, results[results['labels'] == 'RG'])
-    CPF    = extract_data_from_prediction(message, results[results['labels'] == 'CPF'])
+    output_object['VALIDAR_CPF']             = False
+    output_object['VALIDAR_RG']              = False
+    output_object['VALIDAR_DATA_NASCIMENTO'] = False
+    output_object['VALIDAR_NOME']            = False
 
-    if NOME == message['DOC_NUMBER']['NOME']:
-        output_object['VALIDAR_NOME'] = True
-    else:
-        output_object['VALIDAR_NOME'] = False
-        validar_documento = False
 
     if RG_FRENTE == True and RG_VERSO == True:
+        #NOME   = extract_data_from_prediction(message, results[results['labels'] == 'NOME'])
+        #RG = extract_data_from_prediction(message, results[results['labels'] == 'RG'])
+        #CPF    = extract_data_from_prediction(message, results[results['labels'] == 'CPF'])
+
         output_object['VALIDAR_FRENTE_VERSO'] = True
-    else:
-        output_object['VALIDAR_FRENTE_VERSO'] = False
-        validar_documento = False
 
-    if DATA_NASCIMENTO:
-        output_object['VALIDAR_DATA_NASCIMENTO'] = True
-    else:
-        output_object['VALIDAR_DATA_NASCIMENTO'] = False
-        validar_documento = False
 
-    if message['DOC_NUMBER']['CPF'] != '':
-        if CPF == message['DOC_NUMBER']['CPF']:
-            output_object['VALIDAR_CPF'] = True
+        texto = get_text(message)
+        texto_numero = texto.replace(' ', '')
+
+        if message['DOC_NUMBER']['NOME'] in texto:
+            output_object['VALIDAR_NOME'] = True
         else:
-            output_object['VALIDAR_CPF'] = False
             validar_documento = False
 
-    if message['DOC_NUMBER']['RG'] != '':
-        if RG == message['DOC_NUMBER']['RG']:
+        if message['DOC_NUMBER']['DATA_NASCIMENTO'] in texto:
+            output_object['VALIDAR_DATA_NASCIMENTO'] = True
+        else:
+            validar_documento = False
+
+        if message['DOC_NUMBER']['CPF'] != '':
+            if message['DOC_NUMBER']['CPF'] in texto:
+                output_object['VALIDAR_CPF'] = True
+            elif message['DOC_NUMBER']['CPF'] in texto_numero:
+                output_object['VALIDAR_CPF'] = True
+            else:
+                validar_documento = False
+
+        if message['DOC_NUMBER']['RG'] in texto:
+            output_object['VALIDAR_RG'] = True
+        elif message['DOC_NUMBER']['RG'] in texto_numero:
             output_object['VALIDAR_RG'] = True
         else:
-            output_object['VALIDAR_RG'] = False
             validar_documento = False
 
+        output_object['VALIDAR_DOCUMENTO'] = validar_documento
 
-    output_object['VALIDAR_DOCUMENTO'] = validar_documento
+    else:
+        output_object['VALIDAR_FRENTE_VERSO'] = False
+        output_object['VALIDAR_DOCUMENTO'] = False
 
-    return output_object, {'RG_FRENTE':RG_FRENTE, 'RG_VERSO':RG_VERSO, 'DATA_NASCIMENTO': DATA_NASCIMENTO, 'NOME':NOME, 'RG': RG, 'CPF': CPF}
-
+    return output_object, {'RG_FRENTE':RG_FRENTE, 'RG_VERSO':RG_VERSO, 'RG': output_object['VALIDAR_RG'],  'DATA_NASCIMENTO': output_object['VALIDAR_DATA_NASCIMENTO'], 'NOME': output_object['VALIDAR_NOME'], 'CPF': output_object['VALIDAR_CPF']}
 
 def process_CNH_predicition(message, results, output_object):
     classes = ['CNH_FRENTE', 'CNH_VERSO', 'CNH', 'NOME', 'RG', 'CPF', 'DATA_NASCIMENTO']

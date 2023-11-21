@@ -1,5 +1,6 @@
 from src.cnh_manager import process_prediction_cnh
-from src.model_manager import load_model, process_prediction
+from src.model_manager import process_prediction
+from src.model_utils import load_model
 from src.file_manager import check_file_integrity, read_image
 #usado para verificar a similaridade de strings, solução paleativa até que o ocr esteja 100%
 from difflib import SequenceMatcher
@@ -11,28 +12,18 @@ def process_output(message=None, output_message=None):
     errors = list()
     if message['DOC_TYPE'] == 'RG':
 
-        if output_message['NOME'] != '':
-            if not message['DOC_NUMBER']['NOME'] == output_message['NOME']:
-                errors.append('Seu nome está diferente do documento.')
-        else:
-            errors.append('Seu nome não está legível no documento.')
+        if not output_message['NOME']:
+            errors.append('Seu nome está diferente do documento ou não está legível no documento.')
 
-        if output_message['RG'] != '':
-            if not message['DOC_NUMBER']['RG'] == output_message['RG']:
-                errors.append('O número do RG é divergente do nome informado no cadastro.')
-        else:
-            errors.append('O número de RG não está legível.')
+        if not output_message['RG']:
+            errors.append('O número do RG é divergente do nome informado no cadastro ou não está legível.')
 
         if message['DOC_NUMBER']['CPF'] != '':
-            if output_message['CPF'] != '':
-                if not message['DOC_NUMBER']['CPF'] == output_message['CPF']:
-                    errors.append('O número do CPF é divergente do nome informado no cadastro.')
-            else:
-                errors.append('O usuário informou o número de CPF junto com o RG, porém o número de CPF não está legível.')
+            if not output_message['CPF']:
+                errors.append('O número do CPF é divergente do nome informado no cadastro ou não está legível')
 
         if not output_message['DATA_NASCIMENTO']:
             errors.append('Documento ilegível ou cortado. Não é possível identificar a data de nascimento')
-
 
     elif message['DOC_TYPE'] == 'CNH':
         'validar nome e cpf'

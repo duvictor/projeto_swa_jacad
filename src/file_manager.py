@@ -43,6 +43,10 @@ def check_file_integrity(file_path):
 
 def read_image(message):
 
-    image = preprocess_image(np.array(message['IMAGE']).copy())
+    image = np.array(message['IMAGE']).copy()
+    if image.shape[-1] == 4:
+        # Convert RGBA to RGB
+        image = image[..., :3]
+    image = preprocess_image(image)
     image, scale = resize_image(image)
     return np.expand_dims(image, axis=0), scale

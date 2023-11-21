@@ -8,7 +8,7 @@ from dateutil.parser import parse
 from datetime import datetime
 from unidecode import unidecode
 from pdf2jpg import pdf2jpg
-import os
+
 
 def create_output_object():
     object = {
@@ -135,6 +135,7 @@ def process_args(file_name, uploaded_file, type_file, objeto_json):
                    'DOC_NUMBER': {'NOME': processa_str(objeto_json['NOME']),
                                   'RG': processa_str(objeto_json['RG']),
                                   'CPF': processa_str(objeto_json['CPF']),
+                                  'DATA_NASCIMENTO': processa_str(objeto_json['DATA_NASCIMENTO'])
                                  }
                    }
     elif type_file == 'CNH':
@@ -292,3 +293,9 @@ def converterPdf(inputpath, outputpath):
     print('CONVERSAO FINALIZADA')
     print('*' * 30)
     return result
+
+
+
+
+
+
