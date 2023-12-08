@@ -171,17 +171,17 @@ class Upload(Resource):
 
         errors_message = []
         output_object = create_output_object()
-
+        uploaded_file = None
         try:
             headers = request.headers
             bearer = headers.get('Authorization')  # Bearer YourTokenHere
             token = bearer.split()[0]  # YourTokenHere
 
             if token != TOKEN_LOCAL:
-                errors_message.append({'erro': 'Falha de autorização'}, 400)
+                errors_message.append({'erro': 'Falha de autorização'})
                 return errors_message
-#
-#
+    #
+    #
             args = upload_parser.parse_args()
             #args = self.api.payload
             uploaded_file = args['documento']  # This is FileStorage instance

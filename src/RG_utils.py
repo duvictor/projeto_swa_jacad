@@ -100,14 +100,22 @@ def get_RG_frente_verso(message):
     return rg_img_crop
 
 def get_text(message):
+
     if message['DOC_TYPE'] == 'RG':
-        rg_img_to_craft = get_RG_frente_verso(message)
-        rg_img_to_crop  = rg_img_to_craft.copy()   #craft mexe na imagem, então pra cortar precisa de uma cópia
-        text_bboxes  = craft_process(rg_img_to_craft)
-        rg_text = []
-        for box in text_bboxes:
-            crop = crop_image(rg_img_to_crop, box=box)
-            rg_text.append(pytesseract.image_to_string(crop, lang='por'))
-        rg_text_all = [processa_str(text) for text in rg_text]
-        rg_text_concat = ' '.join(rg_text_all)
-        return rg_text_concat
+        rg_img_to_tesseract = get_RG_frente_verso(message)
+        rg_text = pytesseract.image_to_string(rg_img_to_tesseract, lang='por')
+        rg_text_all = processa_str(rg_text)
+        return rg_text_all
+
+
+    #if message['DOC_TYPE'] == 'RG':
+    #    rg_img_to_craft = get_RG_frente_verso(message)
+    #    rg_img_to_crop  = rg_img_to_craft.copy()   #craft mexe na imagem, então pra cortar precisa de uma cópia
+    #    text_bboxes  = craft_process(rg_img_to_craft)
+    #    rg_text = []
+    #    for box in text_bboxes:
+    #        crop = crop_image(rg_img_to_crop, box=box)
+    #        rg_text.append(pytesseract.image_to_string(crop, lang='por'))
+    #    rg_text_all = [processa_str(text) for text in rg_text]
+    #    rg_text_concat = ' '.join(rg_text_all)
+    #    return rg_text_concat
