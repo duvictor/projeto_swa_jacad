@@ -17,6 +17,13 @@ WORKDIR /service
 
 
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN apt-get -y install \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-* \
+    libgl1-mesa-dev;
+RUN apt-get clean
+
 RUN pip install --no-cache-dir -r /requirements.txt
 COPY . /service
 #CMD ["hypercorn","main:app","--worker-class","trio","--bind","0.0.0.0:8091"]
