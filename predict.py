@@ -16,11 +16,11 @@ def process_output(message=None, output_message=None):
             errors.append('Seu nome está diferente do documento ou não está legível no documento.')
 
         if not output_message['RG']:
-            errors.append('O número do RG é divergente do nome informado no cadastro ou não está legível.')
+            errors.append('O número do RG é divergente do número informado no cadastro ou não está legível.')
 
         if message['DOC_NUMBER']['CPF'] != '':
             if not output_message['CPF']:
-                errors.append('O número do CPF é divergente do nome informado no cadastro ou não está legível')
+                errors.append('O número do CPF é divergente do número informado no cadastro ou não está legível')
 
         if not output_message['DATA_NASCIMENTO']:
             errors.append('Documento ilegível ou cortado. Não é possível identificar a data de nascimento')
