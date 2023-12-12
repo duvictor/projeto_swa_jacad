@@ -32,7 +32,7 @@ def process_output(message=None, output_message=None):
         #     if SequenceMatcher(None, output_message['CNH_NOME'], message['DOC_NUMBER']['CNH_NOME']).ratio() <= 0.30:
         #         errors.append('Seu nome está diferente do documento.')
         # else:
-        #     errors.append('Seu nome não está legível no documento.')
+        #     errors.append('Seu nome não está legível no documento. ')
 
         if output_message['CNH'] != '':
             if SequenceMatcher(None, output_message['CNH'], message['DOC_NUMBER']['CNH']).ratio() <= 0.50:
