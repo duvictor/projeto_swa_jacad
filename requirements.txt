@@ -14,6 +14,9 @@ keras-ocr
 unidecode
 boto3
 psycopg2
+pytesseract
 craft-text-detector
-imutils=0.5.4
-pytesseract=0.3.10
+imutils
+tesseract
+torch
+torchvision

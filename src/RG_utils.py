@@ -14,7 +14,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 # Paulo, vc precisa mudar esse path para o da maquina
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Thiago\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Thiago\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 def crop_image(imagem, box=None, min_x=None, min_y=None, max_x=None, max_y=None):
     if box is not None and box.size > 0:
